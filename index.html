@@ -3,16 +3,66 @@
 <head>
 <meta charset="UTF-8">
 <title>白给Turbo</title>
+<style>
+    /* 修改1：为标题容器添加圆角效果 */
+    #header {
+        background-color: darkorange;
+        border-radius: 15px; /* 添加圆角边框 */
+        padding: 20px; /* 增加内边距使内容更美观 */
+        text-align: center; /* 文字居中显示 */
+        width: 80%; /* 设置容器宽度为80% */
+        margin: 0 auto; /* 水平居中 */
+    }
+    
+    /* 修改2：增大标题字体并添加动画效果 */
+    h1 {
+        margin: 0;
+        color: white;
+        font-size: 80px; /* 增大字体大小 */
+        font-weight: bold; /* 加粗字体 */
+        /* 修改3：添加渐显入场动画 */
+        animation: fadeIn 2s ease-in-out; /* 应用渐显动画，持续2秒 */
+        opacity: 0; /* 初始状态为完全透明 */
+        animation-fill-mode: forwards; /* 动画结束后保持不透明状态 */
+    }
+    
+    /* 修改4：定义渐显动画关键帧 */
+    @keyframes fadeIn {
+        from {
+            opacity: 0; /* 动画开始：完全透明 */
+            transform: translateY(-20px); /* 从上方20px位置开始 */
+        }
+        to {
+            opacity: 1; /* 动画结束：完全不透明 */
+            transform: translateY(0); /* 移动到原始位置 */
+        }
+    }
+    
+    /* 修改5：为页面整体添加淡入效果 */
+    body {
+        animation: pageFadeIn 1s ease-in; /* 页面加载时的淡入动画 */
+    }
+    
+    /* 修改6：定义页面淡入动画 */
+    @keyframes pageFadeIn {
+        from {
+            opacity: 0; /* 页面开始：透明 */
+        }
+        to {
+            opacity: 1; /* 页面结束：不透明 */
+        }
+    }
+</style>
 </head>
 <body>
   
 <div id="container" style="width: auto;">
-    <div id="header" style="background-color: darkorange;">
-        <center>
-            <h1 style="margin: bottom 0;"><color style="color: white;">白给Turbo</color></h1>
+    <!-- 修改7：移除过时的<center>标签，使用CSS实现居中 -->
+    <div id="header">
+        <!-- 修改8：移除过时的<color>标签，使用CSS设置文字颜色 -->
+        <h1>白给Turbo</h1>
+    </div>
 </div>
-</center>    
-
 
 </body>
 </html>
