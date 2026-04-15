@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
-  <title>白给Turbo · 可滑动</title>
+  <title>白给Turbo · 滑动映像</title>
   <!-- 宋体优先，粗宋标题 -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -27,7 +27,22 @@
       -webkit-font-smoothing: antialiased;
     }
 
-    /* ---------- 加载进度条 (全屏遮罩) ---------- */
+    /* ---------- 点击反馈圆圈 (差值混合) ---------- */
+    #feedbackCircle {
+      position: fixed;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background-color: #ffffff;
+      mix-blend-mode: difference;
+      pointer-events: none;
+      z-index: 100;
+      opacity: 0;
+      transform: translate(-50%, -50%) scale(0);
+      will-change: transform, left, top;
+    }
+
+    /* 加载进度条 */
     #loaderOverlay {
       position: fixed;
       top: 0; left: 0; width: 100%; height: 100%;
@@ -75,7 +90,7 @@
       letter-spacing: 1px;
     }
 
-    /* ---------- 主应用 · 全屏滑动容器 ---------- */
+    /* ---------- 主应用 · 全屏滑动 ---------- */
     #app {
       position: relative;
       width: 100%;
@@ -116,7 +131,7 @@
       padding-top: 80px;
     }
 
-    /* ---------- 导航栏 (固定，透明毛玻璃，带边界) ---------- */
+    /* 导航栏 */
     .app-header {
       position: fixed;
       top: 0;
@@ -141,7 +156,6 @@
     }
 
     .brand-title {
-      font-family: 'Noto Serif SC', 'Songti SC', serif;
       font-weight: 900;
       font-size: 2rem;
       color: #b15e4a;
@@ -160,9 +174,6 @@
       transition: background 0.2s;
       line-height: 1;
     }
-    .menu-toggle:hover {
-      background: rgba(200, 150, 130, 0.1);
-    }
 
     .section-title {
       font-weight: 900;
@@ -174,10 +185,7 @@
       padding-left: 22px;
     }
 
-    p {
-      color: #5e4b3f;
-      margin-bottom: 1rem;
-    }
+    p { color: #5e4b3f; margin-bottom: 1rem; }
 
     /* 时间组 */
     .time-group {
@@ -189,228 +197,68 @@
       border-radius: 24px;
       border: 0.5px solid rgba(200, 150, 130, 0.2);
     }
-    .fixed-time, .live-time {
-      font-size: 1rem;
-      color: #6b4e40;
-    }
-    .elapsed-time {
-      font-size: 1.2rem;
-      font-weight: 600;
-      color: #b15e4a;
-      margin: 8px 0;
-    }
-    .time-icon {
-      margin-right: 6px;
-      color: #b15e4a;
-    }
+    .fixed-time, .live-time { font-size: 1rem; color: #6b4e40; }
+    .elapsed-time { font-size: 1.2rem; font-weight: 600; color: #b15e4a; margin: 8px 0; }
+    .time-icon { margin-right: 6px; color: #b15e4a; }
 
-    /* 学校建筑图形 */
-    .school-section {
-      margin: 20px 0 20px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
-    }
+    /* 学校图形 */
+    .school-section { margin: 20px 0; display: flex; flex-direction: column; align-items: center; }
     .building-group {
-      display: flex;
-      align-items: flex-end;
-      justify-content: center;
-      gap: 6px;
-      margin-bottom: 20px;
-      padding: 16px 8px;
-      background: rgba(250, 240, 230, 0.3);
-      backdrop-filter: blur(4px);
-      -webkit-backdrop-filter: blur(4px);
-      border-radius: 40px;
-      border: 0.5px solid rgba(200, 150, 130, 0.2);
+      display: flex; align-items: flex-end; justify-content: center; gap: 6px;
+      margin-bottom: 20px; padding: 16px 8px;
+      background: rgba(250, 240, 230, 0.3); backdrop-filter: blur(4px);
+      border-radius: 40px; border: 0.5px solid rgba(200, 150, 130, 0.2);
     }
     .house-body {
-      width: 90px;
-      height: 75px;
-      background: rgba(200, 150, 130, 0.2);
-      backdrop-filter: blur(4px);
-      border: 1.5px solid #b15e4a;
-      border-radius: 20px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
+      width: 90px; height: 75px; background: rgba(200, 150, 130, 0.2);
+      backdrop-filter: blur(4px); border: 1.5px solid #b15e4a; border-radius: 20px;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
     }
     .roof {
-      width: 110px;
-      height: 18px;
-      background: rgba(177, 94, 74, 0.3);
-      backdrop-filter: blur(4px);
-      border: 1.5px solid #b15e4a;
-      border-radius: 30px 30px 12px 12px;
-      position: relative;
-      top: -6px;
-      left: -10px;
+      width: 110px; height: 18px; background: rgba(177, 94, 74, 0.3);
+      backdrop-filter: blur(4px); border: 1.5px solid #b15e4a;
+      border-radius: 30px 30px 12px 12px; position: relative; top: -6px; left: -10px;
     }
-    .window-row {
-      display: flex;
-      gap: 10px;
-      margin-top: 4px;
-    }
+    .window-row { display: flex; gap: 10px; margin-top: 4px; }
     .window {
-      width: 22px;
-      height: 28px;
-      background: rgba(250, 245, 235, 0.6);
-      backdrop-filter: blur(2px);
-      border: 1.5px solid #b15e4a;
-      border-radius: 12px;
-      position: relative;
+      width: 22px; height: 28px; background: rgba(250, 245, 235, 0.6);
+      backdrop-filter: blur(2px); border: 1.5px solid #b15e4a; border-radius: 12px; position: relative;
     }
     .window::after {
-      content: "";
-      position: absolute;
-      width: 10px;
-      height: 10px;
-      border-right: 1.5px solid #b15e4a;
-      border-bottom: 1.5px solid #b15e4a;
-      border-radius: 2px;
-      opacity: 0.6;
-      top: 6px;
-      left: 5px;
+      content: ""; position: absolute; width: 10px; height: 10px;
+      border-right: 1.5px solid #b15e4a; border-bottom: 1.5px solid #b15e4a;
+      border-radius: 2px; opacity: 0.6; top: 6px; left: 5px;
     }
-    .clock-wrapper {
-      margin-left: 6px;
-    }
-    .clock {
-      width: 40px;
-      height: 40px;
-      background: rgba(250, 245, 235, 0.7);
-      backdrop-filter: blur(4px);
-      border: 1.8px solid #b15e4a;
-      border-radius: 50%;
-      position: relative;
-    }
-    .clock-hand {
-      position: absolute;
-      background: #b15e4a;
-      border-radius: 20px;
-    }
-    .hour-hand {
-      width: 4px;
-      height: 14px;
-      bottom: 50%;
-      left: calc(50% - 2px);
-      transform: rotate(30deg);
-      transform-origin: bottom center;
-    }
-    .minute-hand {
-      width: 3px;
-      height: 18px;
-      bottom: 50%;
-      left: calc(50% - 1.5px);
-      transform: rotate(-20deg);
-      transform-origin: bottom center;
-    }
-    .clock-center {
-      width: 6px;
-      height: 6px;
-      background: #b15e4a;
-      border-radius: 50%;
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-    }
-    .flagpole-wrapper {
-      margin-left: 8px;
-    }
-    .flagpole {
-      width: 6px;
-      height: 70px;
-      background: rgba(177, 94, 74, 0.4);
-      backdrop-filter: blur(2px);
-      border: 1px solid #b15e4a;
-      border-radius: 20px;
-      margin-bottom: 2px;
-    }
-    .flag {
-      width: 34px;
-      height: 22px;
-      background: rgba(177, 94, 74, 0.25);
-      backdrop-filter: blur(4px);
-      border: 1.5px solid #b15e4a;
-      border-radius: 12px;
-      transform: translateX(-6px);
-    }
-    .school-text {
-      font-weight: 700;
-      font-size: 1.3rem;
-      color: #5e4b3f;
-      margin-bottom: 6px;
-    }
-    .school-name {
-      font-weight: 900;
-      font-size: 2.2rem;
-      color: #b15e4a;
-      letter-spacing: 2px;
-      border-bottom: 2px dashed rgba(177, 94, 74, 0.3);
-      padding-bottom: 8px;
-      display: inline-block;
-    }
+    .clock { width: 40px; height: 40px; background: rgba(250, 245, 235, 0.7); backdrop-filter: blur(4px); border: 1.8px solid #b15e4a; border-radius: 50%; position: relative; }
+    .clock-hand { position: absolute; background: #b15e4a; border-radius: 20px; }
+    .hour-hand { width: 4px; height: 14px; bottom: 50%; left: calc(50% - 2px); transform: rotate(30deg); transform-origin: bottom center; }
+    .minute-hand { width: 3px; height: 18px; bottom: 50%; left: calc(50% - 1.5px); transform: rotate(-20deg); transform-origin: bottom center; }
+    .clock-center { width: 6px; height: 6px; background: #b15e4a; border-radius: 50%; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); }
+    .flagpole-wrapper { margin-left: 8px; }
+    .flagpole { width: 6px; height: 70px; background: rgba(177, 94, 74, 0.4); backdrop-filter: blur(2px); border: 1px solid #b15e4a; border-radius: 20px; margin-bottom: 2px; }
+    .flag { width: 34px; height: 22px; background: rgba(177, 94, 74, 0.25); backdrop-filter: blur(4px); border: 1.5px solid #b15e4a; border-radius: 12px; transform: translateX(-6px); }
+    .school-text { font-weight: 700; font-size: 1.3rem; color: #5e4b3f; margin-bottom: 6px; }
+    .school-name { font-weight: 900; font-size: 2.2rem; color: #b15e4a; letter-spacing: 2px; border-bottom: 2px dashed rgba(177, 94, 74, 0.3); padding-bottom: 8px; display: inline-block; }
 
     /* 导航菜单 */
     .nav-menu {
-      position: fixed;
-      top: 0;
-      right: -280px;
-      width: 260px;
-      max-width: 75vw;
-      height: 100%;
-      background: rgba(250, 240, 230, 0.85);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      box-shadow: -8px 0 30px rgba(120, 80, 60, 0.08);
-      z-index: 50;
-      padding: 28px 20px;
-      transition: right 0.4s cubic-bezier(0.23, 1, 0.32, 1);
-      border-left: 1px solid rgba(200, 150, 130, 0.2);
-      overflow-y: auto;
+      position: fixed; top: 0; right: -280px; width: 260px; max-width: 75vw; height: 100%;
+      background: rgba(250, 240, 230, 0.85); backdrop-filter: blur(12px);
+      box-shadow: -8px 0 30px rgba(120, 80, 60, 0.08); z-index: 50;
+      padding: 28px 20px; transition: right 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+      border-left: 1px solid rgba(200, 150, 130, 0.2); overflow-y: auto;
     }
-    .nav-menu.open {
-      right: 0;
-    }
-    .nav-menu ul {
-      list-style: none;
-      margin-top: 40px;
-    }
-    .nav-menu li {
-      margin-bottom: 20px;
-    }
-    .nav-menu a {
-      font-weight: 700;
-      font-size: 1.6rem;
-      color: #4f3a30;
-      text-decoration: none;
-      display: block;
-      padding: 8px 0;
-      border-bottom: 1px solid rgba(180, 130, 110, 0.2);
-    }
-    .nav-menu .close-menu {
-      text-align: right;
-      font-size: 1.8rem;
-      color: #7a5e50;
-      cursor: pointer;
-    }
+    .nav-menu.open { right: 0; }
+    .nav-menu ul { list-style: none; margin-top: 40px; }
+    .nav-menu li { margin-bottom: 20px; }
+    .nav-menu a { font-weight: 700; font-size: 1.6rem; color: #4f3a30; text-decoration: none; display: block; padding: 8px 0; border-bottom: 1px solid rgba(180, 130, 110, 0.2); }
+    .nav-menu .close-menu { text-align: right; font-size: 1.8rem; color: #7a5e50; cursor: pointer; }
     .menu-overlay {
-      position: fixed;
-      top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0,0,0,0.1);
-      backdrop-filter: blur(2px);
-      z-index: 40;
-      opacity: 0;
-      visibility: hidden;
-      transition: 0.3s;
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.1); backdrop-filter: blur(2px); z-index: 40;
+      opacity: 0; visibility: hidden; transition: 0.3s;
     }
-    .menu-overlay.active {
-      opacity: 1;
-      visibility: visible;
-    }
+    .menu-overlay.active { opacity: 1; visibility: visible; }
 
     @media (max-width: 600px) {
       .section-title { font-size: 1.9rem; }
@@ -419,6 +267,9 @@
   </style>
 </head>
 <body>
+
+<!-- 点击反馈圆圈 -->
+<div id="feedbackCircle"></div>
 
 <!-- 加载层 -->
 <div id="loaderOverlay">
@@ -440,7 +291,6 @@
   </header>
 
   <div id="sliderContainer" class="slider-container">
-    <!-- 首页 slide 0 -->
     <section class="slide" data-index="0">
       <div class="slide-content">
         <h2 class="section-title">为什么要做这网站</h2>
@@ -448,7 +298,7 @@
           突然心血来潮，想要做一个展示图片的网站，可是我这只是部署在github上，我也没有细细研究，也租不起服务器，所以只是随便用ai做了这个网站。当然，后续可能确实会展示一些图片，不过那就是后续了......哦，我这糟糕的语言组织能力......
         </p>
         <div class="time-group">
-          <div class="fixed-time"><i class="fas fa-clock time-icon"></i> 固定时间：2026年4月15日 16:44:47</div>
+          <div class="fixed-time"><i class="fas fa-clock time-icon"></i> 建站时间：2026年4月15日 16:44:47</div>
           <div class="elapsed-time" id="elapsedTimeDisplay"><i class="fas fa-hourglass-half time-icon"></i> 计算中...</div>
           <div class="live-time" id="liveTimeDisplay"><i class="fas fa-sync-alt time-icon"></i> 现在加载中...</div>
         </div>
@@ -470,7 +320,6 @@
       </div>
     </section>
 
-    <!-- 展示区 slide 1 -->
     <section class="slide" data-index="1">
       <div class="slide-content">
         <h2 class="section-title">展示区</h2>
@@ -482,7 +331,6 @@
       </div>
     </section>
 
-    <!-- 关于未来 slide 2 -->
     <section class="slide" data-index="2">
       <div class="slide-content">
         <h2 class="section-title">关于未来</h2>
@@ -531,14 +379,14 @@
         if(minutes||hours||days) parts.push(`${minutes}分`);
         parts.push(`${seconds}秒`);
         const durationStr = parts.join('');
-        if(elapsedMs < 0) elapsedEl.innerHTML = `<i class="fas fa-hourglass-start time-icon"></i> 距离固定时间还有 ${durationStr}`;
+        if(elapsedMs < 0) elapsedEl.innerHTML = `<i class="fas fa-hourglass-start time-icon"></i> 距离建站还有 ${durationStr}`;
         else elapsedEl.innerHTML = `<i class="fas fa-hourglass-half time-icon"></i> 已经过去 ${durationStr}`;
       }
     }
     updateTimeDisplays();
     setInterval(updateTimeDisplays, 1000);
 
-    // ---------- 加载进度 & 动画 ----------
+    // ---------- 加载进度 ----------
     const loaderOverlay = document.getElementById('loaderOverlay');
     const progressFill = document.getElementById('progressFill');
     const progressPercent = document.getElementById('progressPercent');
@@ -570,9 +418,7 @@
     const totalSlides = slides.length;
     let currentIndex = 0;
     let isAnimating = false;
-    let touchStartY = 0;
-    let touchCurrentY = 0;
-    let touchDiff = 0;
+    let touchStartY = 0, touchCurrentY = 0;
     const SWIPE_THRESHOLD = 100;
 
     function setSliderOffset(offset) {
@@ -589,7 +435,6 @@
     function attemptSlide(direction) {
       if(isAnimating) return;
       let target = currentIndex + direction;
-      
       if(target < 0 || target >= totalSlides) {
         isAnimating = true;
         const offset = direction * 15;
@@ -601,7 +446,6 @@
         }, 150);
         return;
       }
-      
       isAnimating = true;
       slider.style.transition = 'transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
       currentIndex = target;
@@ -609,60 +453,43 @@
       setTimeout(() => { isAnimating = false; }, 600);
     }
 
-    // 触摸事件
+    // 触摸滑动
     window.addEventListener('touchstart', (e) => {
       if(isAnimating) return;
       touchStartY = e.touches[0].clientY;
       touchCurrentY = touchStartY;
-      touchDiff = 0;
     }, { passive: true });
 
     window.addEventListener('touchmove', (e) => {
       if(isAnimating) return;
       e.preventDefault();
       touchCurrentY = e.touches[0].clientY;
-      touchDiff = touchStartY - touchCurrentY;
-      
-      let offset = touchDiff;
-      if((currentIndex === 0 && touchDiff < 0) || (currentIndex === totalSlides - 1 && touchDiff > 0)) {
-        offset = touchDiff * 0.3;
-      }
+      const diff = touchStartY - touchCurrentY;
+      let offset = diff;
+      if((currentIndex === 0 && diff < 0) || (currentIndex === totalSlides - 1 && diff > 0)) offset = diff * 0.3;
       setSliderOffset(-offset);
     }, { passive: false });
 
     window.addEventListener('touchend', (e) => {
       if(isAnimating) return;
       const diff = touchStartY - touchCurrentY;
-      
-      if(Math.abs(diff) > SWIPE_THRESHOLD) {
-        const direction = diff > 0 ? 1 : -1;
-        attemptSlide(direction);
-      } else {
-        isAnimating = true;
-        snapToCurrent();
-      }
+      if(Math.abs(diff) > SWIPE_THRESHOLD) attemptSlide(diff > 0 ? 1 : -1);
+      else { isAnimating = true; snapToCurrent(); }
     });
 
-    // 滚轮事件
-    let wheelDeltaAcc = 0;
-    let wheelTimeout = null;
+    let wheelDeltaAcc = 0, wheelTimeout = null;
     window.addEventListener('wheel', (e) => {
       e.preventDefault();
       if(isAnimating) return;
-      
       wheelDeltaAcc += e.deltaY;
-      
       clearTimeout(wheelTimeout);
       wheelTimeout = setTimeout(() => {
-        if(Math.abs(wheelDeltaAcc) > SWIPE_THRESHOLD) {
-          const direction = wheelDeltaAcc > 0 ? 1 : -1;
-          attemptSlide(direction);
-        }
+        if(Math.abs(wheelDeltaAcc) > SWIPE_THRESHOLD) attemptSlide(wheelDeltaAcc > 0 ? 1 : -1);
         wheelDeltaAcc = 0;
       }, 80);
     }, { passive: false });
 
-    // 菜单切换 (同步更新了菜单项文字)
+    // 菜单
     const navMenu = document.getElementById('navMenu');
     const overlay = document.getElementById('menuOverlay');
     function openMenu() { navMenu.classList.add('open'); overlay.classList.add('active'); document.body.style.overflow='hidden'; }
@@ -686,6 +513,136 @@
     });
 
     slider.style.transform = 'translateY(0)';
+
+    // ---------- 点击反馈 (中心对齐修正) ----------
+    const circle = document.getElementById('feedbackCircle');
+    let pressTimer = null;
+    let isLongPress = false;
+    let isPressed = false;
+    let startX = 0, startY = 0;
+
+    function setCirclePosition(x, y) {
+      // 使用 translate(-50%, -50%) 让圆心对准坐标
+      circle.style.left = x + 'px';
+      circle.style.top = y + 'px';
+    }
+
+    function showCircle(x, y) {
+      setCirclePosition(x, y);
+      circle.style.transition = 'none';
+      circle.style.opacity = '1';
+      circle.style.transform = 'translate(-50%, -50%) scale(1)';
+    }
+
+    function hideCircle(animate = true) {
+      if (animate) {
+        circle.style.transition = 'transform 0.25s cubic-bezier(0.34, 1.3, 0.64, 1), opacity 0.15s';
+        circle.style.transform = 'translate(-50%, -50%) scale(0)';
+        circle.style.opacity = '0';
+      } else {
+        circle.style.transition = 'none';
+        circle.style.transform = 'translate(-50%, -50%) scale(0)';
+        circle.style.opacity = '0';
+      }
+    }
+
+    function playClickAnimation(x, y) {
+      setCirclePosition(x, y);
+      circle.style.transition = 'transform 0.35s cubic-bezier(0.34, 1.3, 0.64, 1), opacity 0.2s';
+      circle.style.opacity = '1';
+      circle.style.transform = 'translate(-50%, -50%) scale(1.4)';
+      setTimeout(() => {
+        circle.style.transform = 'translate(-50%, -50%) scale(0)';
+        circle.style.opacity = '0';
+      }, 120);
+    }
+
+    function handlePressStart(clientX, clientY) {
+      startX = clientX; startY = clientY;
+      isPressed = true;
+      isLongPress = false;
+      showCircle(clientX, clientY);
+      
+      pressTimer = setTimeout(() => {
+        isLongPress = true;
+      }, 180);
+    }
+
+    function handlePressMove(clientX, clientY) {
+      if (!isPressed) return;
+      const moveDist = Math.hypot(clientX - startX, clientY - startY);
+      if (moveDist > 8) {
+        clearTimeout(pressTimer);
+        isLongPress = true;
+      }
+      if (isLongPress) {
+        setCirclePosition(clientX, clientY);
+        circle.style.transition = 'none';
+        circle.style.transform = 'translate(-50%, -50%) scale(1)';
+        circle.style.opacity = '1';
+      }
+    }
+
+    function handlePressEnd(clientX, clientY) {
+      if (!isPressed) return;
+      clearTimeout(pressTimer);
+      const wasLongPress = isLongPress;
+      isPressed = false;
+      isLongPress = false;
+
+      if (!wasLongPress) {
+        playClickAnimation(startX, startY);
+      } else {
+        hideCircle(true);
+      }
+    }
+
+    // 鼠标事件
+    window.addEventListener('mousedown', (e) => {
+      if (e.button !== 0) return;
+      handlePressStart(e.clientX, e.clientY);
+    });
+    window.addEventListener('mousemove', (e) => {
+      if (!isPressed) return;
+      e.preventDefault();
+      handlePressMove(e.clientX, e.clientY);
+    });
+    window.addEventListener('mouseup', (e) => {
+      if (e.button !== 0) return;
+      handlePressEnd(e.clientX, e.clientY);
+    });
+    window.addEventListener('mouseleave', () => {
+      if (isPressed) {
+        clearTimeout(pressTimer);
+        hideCircle(true);
+        isPressed = false;
+        isLongPress = false;
+      }
+    });
+
+    // 触摸事件
+    window.addEventListener('touchstart', (e) => {
+      const touch = e.touches[0];
+      handlePressStart(touch.clientX, touch.clientY);
+    }, { passive: true });
+    window.addEventListener('touchmove', (e) => {
+      if (!isPressed) return;
+      const touch = e.touches[0];
+      handlePressMove(touch.clientX, touch.clientY);
+    });
+    window.addEventListener('touchend', (e) => {
+      if (!isPressed) return;
+      handlePressEnd(0, 0);
+    });
+    window.addEventListener('touchcancel', () => {
+      if (isPressed) {
+        clearTimeout(pressTimer);
+        hideCircle(true);
+        isPressed = false;
+        isLongPress = false;
+      }
+    });
+
   })();
 </script>
 </body>
