@@ -2,32 +2,15 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
-  <title>纸间映像 · 橙调画廊</title>
-  <!-- 粗宋 & 宋体 -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+  <title>白给Turbo · 暖黄映像</title>
+  <!-- 宋体优先，粗宋标题 -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <style>
-    /* ---------- 全局 · 微泛黄纸张底色 · 低饱和橙 ---------- */
-    :root {
-      --paper-bg: #fcf8f0;        /* 微微泛黄的纸张色 */
-      --paper-deep: #f3ede2;
-      --orange-light: #f5e1d3;
-      --orange-soft: #e6c9b8;
-      --orange-main: #cc9b82;      /* 主橙，低饱和 */
-      --orange-deep: #a57056;
-      --orange-warm: #ddb6a2;
-      --glass-bg: rgba(252, 245, 235, 0.45);
-      --glass-border: rgba(200, 160, 135, 0.25);
-      --text-dark: #3f322a;
-      --text-soft: #6b574a;
-      --shadow-sm: 0 10px 24px -6px rgba(140, 100, 70, 0.08);
-      --card-radius: 28px;
-      --blur-amount: 14px;
-    }
-
+    /* ---------- 全局 · 低饱和暖黄 · 宋体 ---------- */
     * {
       margin: 0;
       padding: 0;
@@ -36,575 +19,504 @@
 
     body {
       font-family: 'Noto Serif SC', 'Songti SC', 'SimSun', '宋体', serif;
-      background-color: var(--paper-bg);   /* 纯色微黄纸底 */
-      min-height: 100vh;
-      color: var(--text-dark);
+      background-color: #fcf6ed;  /* 低饱和暖黄纸色 */
+      color: #3e2e26;
       line-height: 1.5;
+      min-height: 100vh;
       -webkit-font-smoothing: antialiased;
     }
 
-    /* 整体微纹理 (极淡，保留纸张感) */
-    body::before {
-      content: "";
+    /* ---------- 加载进度条 (全屏遮罩) ---------- */
+    #loaderOverlay {
       position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: radial-gradient(circle at 30% 20%, rgba(240, 220, 200, 0.2) 0%, transparent 50%);
+      top: 0; left: 0; width: 100%; height: 100%;
+      background-color: #fcf6ed;
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.5s cubic-bezier(0.23, 1, 0.32, 1), visibility 0.5s;
+      visibility: visible;
+      opacity: 1;
+    }
+    #loaderOverlay.hidden {
+      opacity: 0;
+      visibility: hidden;
       pointer-events: none;
-      z-index: -1;
     }
 
-    .app {
-      max-width: 600px;
+    .progress-container {
+      width: 260px;
+      max-width: 70vw;
+    }
+    .progress-bar-bg {
+      background: rgba(200, 150, 130, 0.15);
+      height: 6px;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+    }
+    .progress-fill {
+      width: 0%;
+      height: 100%;
+      background: #b15e4a;  /* 暗橙红 */
+      border-radius: 20px;
+      transition: width 0.08s linear;
+      box-shadow: 0 0 6px rgba(177, 94, 74, 0.3);
+    }
+    .progress-text {
+      margin-top: 12px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: #8b6f60;
+      text-align: center;
+      letter-spacing: 1px;
+    }
+
+    /* ---------- 主应用 (初始隐藏，加载后显示) ---------- */
+    #app {
+      opacity: 0;
+      transition: opacity 0.6s ease;
+    }
+    #app.visible {
+      opacity: 1;
+    }
+
+    /* 布局容器 */
+    .app-wrapper {
+      max-width: 1200px;
       margin: 0 auto;
-      padding: 0 16px 24px;
+      padding: 0 20px;
     }
 
-    /* ---------- 导航栏 · 毛玻璃效果 (无“毛玻璃”文字) ---------- */
-    .glass-nav {
-      position: sticky;
-      top: 12px;
-      z-index: 30;
-      backdrop-filter: blur(var(--blur-amount));
-      -webkit-backdrop-filter: blur(var(--blur-amount));
-      background: rgba(250, 242, 232, 0.55);
-      border: 1px solid var(--glass-border);
-      border-radius: 60px;
-      padding: 10px 18px;
-      margin: 12px 0 20px;
-      box-shadow: var(--shadow-sm);
+    /* ---------- 头部区域 (左上logo + 右上菜单) ---------- */
+    .app-header {
+      position: relative;
       display: flex;
       align-items: center;
       justify-content: space-between;
+      padding: 20px 0 10px;
+      min-height: 70px;
     }
 
-    .logo {
-      font-weight: 900;
-      font-size: 1.6rem;
-      letter-spacing: 1px;
-      color: var(--orange-deep);
-      font-family: 'Noto Serif SC', serif;
-      display: flex;
-      align-items: center;
-      gap: 6px;
+    /* 白给Turbo — 初始居中的动画元素 */
+    .brand-title {
+      font-family: 'Noto Serif SC', 'Songti SC', serif;
+      font-weight: 900;           /* 粗宋 */
+      font-size: 3.4rem;
+      color: #b15e4a;             /* 暗橙红 */
+      letter-spacing: 2px;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      white-space: nowrap;
+      z-index: 20;
+      margin: 0;
+      text-shadow: 0 4px 12px rgba(160, 90, 70, 0.1);
+      transition: all 0.8s cubic-bezier(0.34, 1.3, 0.64, 1); /* 非线性移动 */
+      pointer-events: none;       /* 让点击穿透，不干扰菜单 */
     }
-    .logo i {
-      color: var(--orange-main);
-      font-size: 1.3rem;
+    /* 移动到左上角的状态 */
+    .brand-title.moved {
+      position: relative;
+      top: 0;
+      left: 0;
+      transform: translate(0, 0);
+      font-size: 2rem;
+      pointer-events: auto;
+      z-index: 10;
+      text-shadow: none;
+      transition: all 0.8s cubic-bezier(0.25, 1, 0.5, 1);
     }
 
-    .nav-links {
-      display: flex;
-      gap: 12px;
-    }
-    .nav-links a {
-      text-decoration: none;
-      font-weight: 600;
-      font-size: 0.95rem;
-      color: var(--text-soft);
-      padding: 6px 12px;
-      border-radius: 40px;
+    /* 右上角汉堡菜单按钮 */
+    .menu-toggle {
       background: transparent;
-      transition: all 0.2s;
+      border: none;
+      font-size: 1.8rem;
+      color: #6b4e40;
+      cursor: pointer;
+      padding: 8px 12px;
+      border-radius: 30px;
+      transition: background 0.2s, opacity 0.4s;
+      opacity: 0;                 /* 初始隐藏，动画后淡入 */
+      pointer-events: none;
       backdrop-filter: blur(4px);
-      -webkit-backdrop-filter: blur(4px);
-      border: 0.5px solid transparent;
+      line-height: 1;
     }
-    .nav-links a:hover {
-      background: rgba(210, 150, 120, 0.15);
-      border-color: var(--glass-border);
-      color: var(--orange-deep);
+    .menu-toggle.visible {
+      opacity: 1;
+      pointer-events: auto;
     }
-
-    /* 区块通用 */
-    section {
-      scroll-margin-top: 90px;
-      margin-bottom: 36px;
+    .menu-toggle:hover {
+      background: rgba(200, 150, 130, 0.1);
     }
 
-    .section-title {
-      font-weight: 700;
-      font-size: 1.9rem;
-      letter-spacing: -0.01em;
-      margin-bottom: 16px;
-      color: var(--text-dark);
-      border-left: 6px solid var(--orange-main);
-      padding-left: 18px;
+    /* 头部左侧占位 (当标题移动后，它占据位置) */
+    .header-left {
+      flex: 1;
     }
 
-    /* ---------- 创作目的区块 · 毛玻璃卡片 ---------- */
-    .purpose-card {
-      backdrop-filter: blur(var(--blur-amount));
-      -webkit-backdrop-filter: blur(var(--blur-amount));
-      background: var(--glass-bg);
-      border: 1px solid var(--glass-border);
-      border-radius: var(--card-radius);
-      padding: 28px 24px;
-      box-shadow: var(--shadow-sm);
-    }
-    .purpose-card p {
-      font-size: 1.1rem;
-      margin-bottom: 16px;
-      color: var(--text-soft);
-      font-weight: 400;
-    }
-    .purpose-card .signature {
-      text-align: right;
-      font-style: italic;
-      color: var(--orange-deep);
-      font-weight: 500;
-    }
-
-    /* ---------- 影音展示 (画廊) ---------- */
-    .gallery-grid {
-      display: flex;
-      flex-direction: column;
-      gap: 28px;
-    }
-
-    .photo-card {
-      backdrop-filter: blur(var(--blur-amount));
-      -webkit-backdrop-filter: blur(var(--blur-amount));
-      background: var(--glass-bg);
-      border: 1px solid var(--glass-border);
-      border-radius: var(--card-radius);
-      box-shadow: var(--shadow-sm);
-      overflow: hidden;
-      transition: transform 0.2s, box-shadow 0.3s;
-    }
-
-    .card-image {
-      width: 100%;
-      aspect-ratio: 4 / 3;
-      overflow: hidden;
-      border-bottom: 1px solid rgba(200, 150, 120, 0.2);
-      background-color: #e5d6ca;
-    }
-    .card-image img {
-      width: 100%;
+    /* ---------- 导航菜单 (侧滑抽屉) ---------- */
+    .nav-menu {
+      position: fixed;
+      top: 0;
+      right: -280px;
+      width: 260px;
+      max-width: 75vw;
       height: 100%;
-      object-fit: cover;
-      display: block;
-      transition: transform 0.5s ease;
-    }
-
-    .card-caption {
-      padding: 16px 18px 4px;
-    }
-    .card-caption h3 {
-      font-weight: 700;
-      font-size: 1.5rem;
-      color: var(--text-dark);
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .photo-meta {
-      font-size: 0.9rem;
-      color: var(--text-soft);
-      margin-top: 4px;
-    }
-
-    /* 留言区域 */
-    .comments-section {
-      padding: 8px 18px 18px;
-    }
-
-    .comment-list {
-      list-style: none;
-      margin-bottom: 18px;
-      max-height: 200px;
+      background: rgba(250, 240, 230, 0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      box-shadow: -8px 0 30px rgba(120, 80, 60, 0.08);
+      z-index: 50;
+      padding: 28px 20px;
+      transition: right 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+      border-left: 1px solid rgba(200, 150, 130, 0.2);
       overflow-y: auto;
-      padding-right: 4px;
+    }
+    .nav-menu.open {
+      right: 0;
     }
 
-    .comment-item {
-      display: flex;
-      gap: 10px;
-      padding: 10px 0;
-      border-bottom: 0.5px dashed rgba(170, 130, 100, 0.25);
+    .nav-menu ul {
+      list-style: none;
+      margin-top: 40px;
     }
-    .comment-item:last-child {
-      border-bottom: none;
+    .nav-menu li {
+      margin-bottom: 20px;
     }
-
-    .comment-avatar {
-      width: 32px;
-      height: 32px;
-      background: rgba(200, 140, 100, 0.2);
-      backdrop-filter: blur(4px);
-      -webkit-backdrop-filter: blur(4px);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--orange-deep);
+    .nav-menu a {
+      font-family: 'Noto Serif SC', serif;
       font-weight: 700;
-      flex-shrink: 0;
-      border: 0.5px solid var(--glass-border);
-    }
-
-    .comment-body {
-      flex: 1;
-    }
-    .comment-author {
-      font-weight: 700;
-      font-size: 0.9rem;
-      color: var(--text-dark);
-      margin-bottom: 2px;
-    }
-    .comment-text {
-      font-size: 0.95rem;
-      color: var(--text-soft);
-      word-break: break-word;
-    }
-
-    .empty-comment {
-      color: var(--text-soft);
-      opacity: 0.7;
-      font-style: italic;
+      font-size: 1.6rem;
+      color: #4f3a30;
+      text-decoration: none;
+      display: block;
       padding: 8px 0;
-      font-size: 0.9rem;
+      border-bottom: 1px solid rgba(180, 130, 110, 0.2);
+      transition: color 0.2s;
+    }
+    .nav-menu a:hover {
+      color: #b15e4a;
+    }
+    .nav-menu .close-menu {
+      text-align: right;
+      font-size: 1.8rem;
+      color: #7a5e50;
+      cursor: pointer;
+      margin-bottom: 10px;
     }
 
-    .add-comment {
-      display: flex;
-      gap: 8px;
-      margin-top: 6px;
+    /* 菜单遮罩 */
+    .menu-overlay {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.1);
+      backdrop-filter: blur(2px);
+      z-index: 40;
+      opacity: 0;
+      visibility: hidden;
+      transition: 0.3s;
     }
-    .comment-input {
-      flex: 1;
-      background: rgba(255, 250, 240, 0.5);
+    .menu-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    /* ---------- 主内容区域 (切换卡片) ---------- */
+    .content-pane {
+      margin-top: 30px;
+      padding: 10px 0 40px;
+    }
+
+    .page-section {
+      display: none;
+      animation: fadeContent 0.5s ease;
+    }
+    .page-section.active {
+      display: block;
+    }
+
+    @keyframes fadeContent {
+      0% { opacity: 0.3; }
+      100% { opacity: 1; }
+    }
+
+    /* 内容样式 (均为宋体，标题加粗) */
+    .section-title {
+      font-weight: 900;
+      font-size: 2.4rem;
+      color: #4f3a30;
+      margin-bottom: 24px;
+      letter-spacing: -0.01em;
+      border-left: 8px solid #b15e4a;
+      padding-left: 22px;
+    }
+
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 20px;
+    }
+    .demo-card {
+      background: rgba(250, 240, 230, 0.5);
       backdrop-filter: blur(8px);
       -webkit-backdrop-filter: blur(8px);
-      border: 1px solid var(--glass-border);
-      border-radius: 48px;
-      padding: 12px 18px;
-      font-family: 'Noto Serif SC', serif;
-      font-size: 0.95rem;
-      color: var(--text-dark);
-      outline: none;
-    }
-    .comment-input:focus {
-      border-color: var(--orange-main);
-      background: rgba(255, 248, 238, 0.7);
-    }
-    .comment-input::placeholder {
-      color: #a18676;
-      font-weight: 300;
-    }
-
-    .comment-btn {
-      background: rgba(200, 140, 100, 0.35);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      border: 1px solid var(--glass-border);
-      border-radius: 48px;
-      width: 52px;
-      height: 52px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--orange-deep);
-      font-size: 1.4rem;
-      cursor: pointer;
-      transition: 0.2s;
-      flex-shrink: 0;
-    }
-    .comment-btn:hover {
-      background: var(--orange-main);
-      color: white;
-    }
-
-    /* 待开发区块 */
-    .dev-card {
-      backdrop-filter: blur(var(--blur-amount));
-      -webkit-backdrop-filter: blur(var(--blur-amount));
-      background: var(--glass-bg);
-      border: 1px solid var(--glass-border);
-      border-radius: 42px;
-      padding: 36px 24px;
+      border: 1px solid rgba(200, 150, 130, 0.2);
+      border-radius: 24px;
+      padding: 24px 16px;
       text-align: center;
-      box-shadow: var(--shadow-sm);
+      box-shadow: 0 6px 14px rgba(150, 110, 90, 0.05);
     }
-    .dev-card i {
-      font-size: 2.8rem;
-      color: var(--orange-main);
-      opacity: 0.6;
-      margin-bottom: 16px;
+    .demo-card i {
+      font-size: 2.2rem;
+      color: #b15e4a;
+      margin-bottom: 12px;
     }
-    .dev-card h3 {
+    .demo-card h3 {
       font-weight: 700;
-      font-size: 1.8rem;
-      color: var(--text-dark);
-      margin-bottom: 8px;
-    }
-    .dev-card p {
-      color: var(--text-soft);
+      font-size: 1.4rem;
     }
 
-    .footer-note {
-      margin-top: 40px;
-      text-align: center;
-      padding: 16px;
-      color: var(--text-soft);
-      font-size: 0.85rem;
+    p {
+      color: #5e4b3f;
+      margin-bottom: 1rem;
     }
 
     /* 响应式 */
-    @media (min-width: 640px) {
-      .app { max-width: 720px; }
-      .gallery-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 24px;
+    @media (max-width: 600px) {
+      .brand-title {
+        font-size: 2.5rem;
       }
-    }
-    @media (max-width: 400px) {
-      .nav-links a { font-size: 0.8rem; padding: 4px 8px; }
-      .logo { font-size: 1.3rem; }
+      .brand-title.moved {
+        font-size: 1.8rem;
+      }
     }
   </style>
 </head>
 <body>
-<div class="app">
-  
-  <!-- 导航栏 · 三个栏目 (毛玻璃视觉，无文字提及) -->
-  <header class="glass-nav">
-    <div class="logo">
-      <i class="fas fa-feather-alt"></i> 纸·映
-    </div>
-    <div class="nav-links">
-      <a href="#purpose">创作目的</a>
-      <a href="#gallery">影音展示</a>
-      <a href="#upcoming">待开发</a>
-    </div>
-  </header>
 
-  <!-- 创作目的区块 -->
-  <section id="purpose">
-    <h2 class="section-title">创作目的</h2>
-    <div class="purpose-card">
-      <p>我们相信影像与文字的交织，能留存温度与记忆。这个空间诞生于对「低饱和橙」的偏爱——它不刺眼，却足够温暖，像旧时纸张上的夕照。</p>
-      <p>每一张照片都是一个入口，你的留言会成为它的一部分。没有预设的喧嚣，只有观者留下的真实回响。愿这里成为你安静看展、随心对话的角落。</p>
-      <div class="signature">—— 纸映团队</div>
+<!-- 加载进度条层 -->
+<div id="loaderOverlay">
+  <div class="progress-container">
+    <div class="progress-bar-bg">
+      <div id="progressFill" class="progress-fill" style="width: 0%;"></div>
     </div>
-  </section>
-
-  <!-- 影音展示 · 画廊 (初始无留言) -->
-  <section id="gallery">
-    <h2 class="section-title">影音展示</h2>
-    <div id="galleryContainer" class="gallery-grid">
-      <!-- 由 JavaScript 动态渲染，初始评论均为空 -->
-    </div>
-  </section>
-
-  <!-- 待开发区块 -->
-  <section id="upcoming">
-    <h2 class="section-title">待开发</h2>
-    <div class="dev-card">
-      <i class="fas fa-hourglass-half"></i>
-      <h3>即将呈现</h3>
-      <p>更多功能正在筹备中，敬请期待。</p>
-    </div>
-  </section>
-
-  <div class="footer-note">
-    <i class="far fa-comment"></i> 轻触留言 · 心意即现
+    <div id="progressPercent" class="progress-text">0%</div>
   </div>
 </div>
 
+<!-- 主应用 (初始透明度0) -->
+<div id="app">
+  <div class="app-wrapper">
+    
+    <!-- 头部：左上角(占位) / 右上角菜单按钮 -->
+    <header class="app-header">
+      <div class="header-left"></div> <!-- 占位，保证菜单右对齐 -->
+      <button id="menuToggleBtn" class="menu-toggle" aria-label="菜单">
+        <i class="fas fa-bars"></i>
+      </button>
+    </header>
+
+    <!-- 核心动画文字：“白给Turbo” (初始居中) -->
+    <h1 id="brandTitle" class="brand-title">白给Turbo</h1>
+
+    <!-- 主要内容区域 (多个页面) -->
+    <div class="content-pane">
+      <!-- 首页/欢迎 -->
+      <section id="homeSection" class="page-section active">
+        <h2 class="section-title">· 白给印象</h2>
+        <div style="display: flex; flex-direction: column; gap: 16px;">
+          <p style="font-size: 1.2rem;">低饱和暖黄 · 暗橙红 · 宋体之美</p>
+          <p>「白给Turbo」是一个关于影像与文字的实验场。这里没有喧嚣，只有安静陈列的光影。点击右上角菜单探索更多。</p>
+          <div class="card-grid">
+            <div class="demo-card"><i class="fas fa-tree"></i><h3>山间</h3><p>晨雾与秋阳</p></div>
+            <div class="demo-card"><i class="fas fa-water"></i><h3>海岸</h3><p>橙光与浪</p></div>
+            <div class="demo-card"><i class="fas fa-city"></i><h3>城市</h3><p>余晖与巷</p></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 作品/画廊 (占位) -->
+      <section id="workSection" class="page-section">
+        <h2 class="section-title">· 作品集</h2>
+        <p>这里是作品陈列区。后续将展示按地点、时间分类的摄影作品。</p>
+        <div style="margin-top: 30px; padding: 30px; background: rgba(230,210,190,0.2); border-radius: 40px; text-align: center; backdrop-filter: blur(4px);">
+          <i class="fas fa-images" style="font-size: 3rem; color: #b15e4a; opacity: 0.5;"></i>
+          <p style="margin-top: 16px;">影像即将上架 · 敬请期待</p>
+        </div>
+      </section>
+
+      <!-- 关于/其他 -->
+      <section id="aboutSection" class="page-section">
+        <h2 class="section-title">· 关于Turbo</h2>
+        <p>“白给”是一种状态——不预设，不刻意。Turbo则代表速度与热忱。我们试图在低饱和的暖调中，捕捉那些转瞬即逝的温柔。</p>
+        <p>所有字体选用宋体，标题加粗，传递阅读的稳定感。</p>
+        <p style="margin-top: 30px;"><i class="fas fa-feather-alt" style="color: #b15e4a;"></i> 纸映团队 · 持续建造中</p>
+      </section>
+    </div>
+  </div>
+</div>
+
+<!-- 导航菜单 (侧边) -->
+<div id="menuOverlay" class="menu-overlay"></div>
+<nav id="navMenu" class="nav-menu">
+  <div class="close-menu" id="closeMenuBtn"><i class="fas fa-times"></i></div>
+  <ul>
+    <li><a href="#" data-page="home">首页</a></li>
+    <li><a href="#" data-page="work">作品</a></li>
+    <li><a href="#" data-page="about">关于</a></li>
+    <li style="margin-top: 30px;"><a href="#" data-page="home" style="font-size: 1.2rem; opacity: 0.7;">待开发…</a></li>
+  </ul>
+</nav>
+
 <script>
-  (function(){
+  (function() {
     "use strict";
 
-    // ---------- 画廊数据 (无初始留言) ----------
-    const galleryData = [
-      {
-        id: 1,
-        title: '晨雾·山间',
-        location: '橙调 · 静谧',
-        imageUrl: 'https://images.pexels.com/photos/247600/pexels-photo-247600.jpeg?auto=compress&cs=tinysrgb&w=600',
-        fallbackImg: 'https://picsum.photos/id/1043/400/300',
-      },
-      {
-        id: 2,
-        title: '秋·暖阳',
-        location: '陶土色的温柔',
-        imageUrl: 'https://images.pexels.com/photos/33109/fall-autumn-red-season.jpg?auto=compress&cs=tinysrgb&w=600',
-        fallbackImg: 'https://picsum.photos/id/28/400/300',
-      },
-      {
-        id: 3,
-        title: '橙光·海岸',
-        location: '低饱和晚霞',
-        imageUrl: 'https://images.pexels.com/photos/189349/pexels-photo-189349.jpeg?auto=compress&cs=tinysrgb&w=600',
-        fallbackImg: 'https://picsum.photos/id/37/400/300',
-      },
-      {
-        id: 4,
-        title: '窗·花影',
-        location: '杏色柔焦',
-        imageUrl: 'https://images.pexels.com/photos/931177/pexels-photo-931177.jpeg?auto=compress&cs=tinysrgb&w=600',
-        fallbackImg: 'https://picsum.photos/id/30/400/300',
-      },
-      {
-        id: 5,
-        title: '巷·余晖',
-        location: '暖调旧城',
-        imageUrl: 'https://images.pexels.com/photos/2104742/pexels-photo-2104742.jpeg?auto=compress&cs=tinysrgb&w=600',
-        fallbackImg: 'https://picsum.photos/id/62/400/300',
-      },
-      {
-        id: 6,
-        title: '橘猫·午后',
-        location: '慵懒一刻',
-        imageUrl: 'https://images.pexels.com/photos/1170986/pexels-photo-1170986.jpeg?auto=compress&cs=tinysrgb&w=600',
-        fallbackImg: 'https://picsum.photos/id/40/400/300',
-      }
-    ];
-
-    const container = document.getElementById('galleryContainer');
+    // ---------- DOM 元素 ----------
+    const loaderOverlay = document.getElementById('loaderOverlay');
+    const progressFill = document.getElementById('progressFill');
+    const progressPercent = document.getElementById('progressPercent');
+    const app = document.getElementById('app');
+    const brandTitle = document.getElementById('brandTitle');
+    const menuToggle = document.getElementById('menuToggleBtn');
     
-    function escapeHtml(text) {
-      if (!text) return '';
-      const div = document.createElement('div');
-      div.textContent = text;
-      return div.innerHTML;
+    const navMenu = document.getElementById('navMenu');
+    const menuOverlay = document.getElementById('menuOverlay');
+    const closeMenuBtn = document.getElementById('closeMenuBtn');
+    
+    // 页面切换
+    const sections = {
+      home: document.getElementById('homeSection'),
+      work: document.getElementById('workSection'),
+      about: document.getElementById('aboutSection')
+    };
+
+    // ---------- 进度条模拟 (加载动画) ----------
+    let progress = 0;
+    const targetProgress = 100;
+    const interval = 20; // ms
+    
+    function updateProgress(value) {
+      progressFill.style.width = value + '%';
+      progressPercent.textContent = value + '%';
     }
 
-    function getAvatarChar(name) {
-      return name ? name.charAt(0).toUpperCase() : '?';
-    }
-
-    // 渲染画廊 (所有卡片初始留言为空)
-    function renderGallery() {
-      if (!container) return;
-      let html = '';
-      galleryData.forEach(item => {
-        html += `
-          <div class="photo-card" data-card-id="${item.id}">
-            <div class="card-image">
-              <img src="${item.imageUrl}" alt="${escapeHtml(item.title)}" loading="lazy"
-                   onerror="this.onerror=null; this.src='${item.fallbackImg}';">
-            </div>
-            <div class="card-caption">
-              <h3>
-                <i class="fas fa-circle" style="font-size: 0.6rem; color: #cc9b82;"></i> 
-                ${escapeHtml(item.title)}
-              </h3>
-              <div class="photo-meta">
-                <i class="fas fa-map-pin" style="margin-right: 4px;"></i>${escapeHtml(item.location)}
-              </div>
-            </div>
-            
-            <div class="comments-section">
-              <ul class="comment-list" data-comment-list="${item.id}">
-                <li class="empty-comment"><i class="far fa-smile"></i> 暂无留言，写下第一条吧</li>
-              </ul>
-              
-              <div class="add-comment">
-                <input type="text" class="comment-input" placeholder="你的话语…" maxlength="80" data-input-id="${item.id}">
-                <button class="comment-btn" data-send-id="${item.id}" aria-label="发送">
-                  <i class="fas fa-paper-plane"></i>
-                </button>
-              </div>
-            </div>
-          </div>
-        `;
-      });
-      container.innerHTML = html;
-    }
-
-    // 留言交互 (事件委托)
-    function handleCommentSend(e) {
-      const btn = e.target.closest('.comment-btn');
-      if (!btn) return;
+    function completeLoading() {
+      // 隐藏加载层
+      loaderOverlay.classList.add('hidden');
+      // 显示主应用
+      app.classList.add('visible');
       
-      const sendId = btn.getAttribute('data-send-id');
-      const card = btn.closest('.photo-card');
-      if (!card) return;
-      
-      const input = card.querySelector(`.comment-input[data-input-id="${sendId}"]`);
-      if (!input) return;
-      
-      const text = input.value.trim();
-      if (!text) {
-        input.placeholder = '写点什么吧 ✍️';
-        input.style.borderColor = '#cc9b82';
-        setTimeout(() => input.style.borderColor = '', 400);
-        return;
-      }
-      
-      const list = card.querySelector(`.comment-list[data-comment-list="${sendId}"]`);
-      if (!list) return;
-      
-      // 移除空状态提示
-      const emptyMsg = list.querySelector('.empty-comment');
-      if (emptyMsg) emptyMsg.remove();
-      
-      // 随机访客名
-      const names = ['橙子', '杏子', '蜜柑', '陶陶', '柚子', '暖暖'];
-      const author = names[Math.floor(Math.random() * names.length)] + Math.floor(Math.random()*20);
-      
-      const newItem = document.createElement('li');
-      newItem.className = 'comment-item';
-      newItem.innerHTML = `
-        <div class="comment-avatar">${getAvatarChar(author)}</div>
-        <div class="comment-body">
-          <div class="comment-author">${escapeHtml(author)}</div>
-          <div class="comment-text">${escapeHtml(text)}</div>
-        </div>
-      `;
-      
-      list.prepend(newItem);
-      input.value = '';
-      
-      // 视觉反馈
-      btn.style.backgroundColor = '#cc9b82';
-      btn.style.color = 'white';
+      // 启动文字移动动画 (非线性移动到左上角)
       setTimeout(() => {
-        btn.style.backgroundColor = '';
-        btn.style.color = '';
-      }, 150);
-      
-      newItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        brandTitle.classList.add('moved');
+        
+        // 文字移动完成后，显示右上角菜单按钮
+        setTimeout(() => {
+          menuToggle.classList.add('visible');
+        }, 600); // 等待移动动画大半完成
+      }, 200);
     }
 
-    // 回车发送
-    function handleKeyPress(e) {
-      if (e.target.classList.contains('comment-input') && e.key === 'Enter') {
-        e.preventDefault();
-        const input = e.target;
-        const id = input.getAttribute('data-input-id');
-        const btn = input.closest('.photo-card')?.querySelector(`.comment-btn[data-send-id="${id}"]`);
-        if (btn) btn.click();
+    // 模拟加载 (同时监听真实 load 事件以尽快完成)
+    let loadCompleted = false;
+    let progressInterval = setInterval(() => {
+      if (progress < 90) {
+        // 前期快速增加
+        progress += 7;
+        if (progress > 90) progress = 90;
+        updateProgress(progress);
+      } else if (progress >= 90 && progress < 100) {
+        // 最后10%等待真实load
+        if (loadCompleted) {
+          progress = 100;
+          updateProgress(progress);
+          clearInterval(progressInterval);
+          setTimeout(() => {
+            completeLoading();
+          }, 200);
+        } else {
+          // 保持90%左右
+        }
       }
+    }, interval);
+
+    // 监听页面完全加载 (包括图片等)
+    window.addEventListener('load', function() {
+      loadCompleted = true;
+      // 如果进度还没到100，加速完成
+      if (progress < 100) {
+        // 直接跳到100
+        progress = 100;
+        updateProgress(progress);
+        clearInterval(progressInterval);
+        setTimeout(() => {
+          completeLoading();
+        }, 250);
+      }
+    });
+
+    // 安全超时：如果load超过5秒，强制完成
+    setTimeout(() => {
+      if (!loadCompleted) {
+        loadCompleted = true;
+        progress = 100;
+        updateProgress(progress);
+        clearInterval(progressInterval);
+        completeLoading();
+      }
+    }, 5000);
+
+    // ---------- 菜单交互 ----------
+    function openMenu() {
+      navMenu.classList.add('open');
+      menuOverlay.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeMenu() {
+      navMenu.classList.remove('open');
+      menuOverlay.classList.remove('active');
+      document.body.style.overflow = '';
     }
 
-    // 平滑滚动 (导航链接)
-    function initSmoothScroll() {
-      document.querySelectorAll('.nav-links a').forEach(anchor => {
-        anchor.addEventListener('click', function(e) {
-          e.preventDefault();
-          const targetId = this.getAttribute('href');
-          if (targetId && targetId !== '#') {
-            const targetEl = document.querySelector(targetId);
-            if (targetEl) {
-              targetEl.scrollIntoView({ behavior: 'smooth' });
-            }
+    menuToggle.addEventListener('click', openMenu);
+    closeMenuBtn.addEventListener('click', closeMenu);
+    menuOverlay.addEventListener('click', closeMenu);
+
+    // 点击菜单项：切换内容 + 关闭菜单
+    const menuLinks = document.querySelectorAll('.nav-menu a[data-page]');
+    menuLinks.forEach(link => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        const page = link.dataset.page;
+        
+        // 切换 active 页面
+        Object.keys(sections).forEach(key => {
+          if (sections[key]) {
+            sections[key].classList.remove('active');
           }
         });
+        if (sections[page]) {
+          sections[page].classList.add('active');
+        }
+        
+        closeMenu();
       });
-    }
+    });
 
-    renderGallery();
+    // 如果点击了logo区域（移动后）也可以作为首页？不需要额外操作
+
+    // 确保文字移动后不会遮挡点击 (pointer-events已经处理)
     
-    if (container) {
-      container.addEventListener('click', handleCommentSend);
-      container.addEventListener('keypress', handleKeyPress);
-    }
-    
-    initSmoothScroll();
+    // 可选：如果用户刷新时已经加载过，但无所谓
+
+    // 小优化：当窗口大小改变时，文字动画没问题
+
   })();
 </script>
 </body>
