@@ -2,8 +2,8 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-  <title>白给Turbo · 暖黄映像</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+  <title>白给Turbo · 滑动映像</title>
   <!-- 宋体优先，粗宋标题 -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -22,11 +22,12 @@
       background-color: #fcf6ed;
       color: #3e2e26;
       line-height: 1.5;
-      min-height: 100vh;
+      height: 100vh;
+      overflow: hidden;
       -webkit-font-smoothing: antialiased;
     }
 
-    /* ---------- 加载进度条 ---------- */
+    /* ---------- 加载进度条 (全屏遮罩) ---------- */
     #loaderOverlay {
       position: fixed;
       top: 0; left: 0; width: 100%; height: 100%;
@@ -74,8 +75,12 @@
       letter-spacing: 1px;
     }
 
-    /* ---------- 主应用 ---------- */
+    /* ---------- 主应用 · 全屏滑动容器 ---------- */
     #app {
+      position: relative;
+      width: 100%;
+      height: 100vh;
+      overflow: hidden;
       opacity: 0;
       transition: opacity 0.4s ease;
     }
@@ -83,51 +88,67 @@
       opacity: 1;
     }
 
-    .app-wrapper {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 0 20px;
+    .slider-container {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      height: 100%;
+      will-change: transform;
+      transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94); /* 非线性滑动 */
     }
 
+    .slide {
+      width: 100%;
+      height: 100vh;
+      flex-shrink: 0;
+      overflow-y: auto;
+      padding: 0 20px 20px;
+      scrollbar-width: none;  /* Firefox隐藏滚动条 */
+      -ms-overflow-style: none;
+    }
+    .slide::-webkit-scrollbar {
+      display: none;  /* Chrome/Safari隐藏滚动条 */
+    }
+
+    /* 内容容器 (增加上边距避免被导航遮挡) */
+    .slide-content {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding-top: 80px;  /* 关键：为固定导航栏留出空间 */
+    }
+
+    /* ---------- 导航栏 (固定，透明毛玻璃，带边界) ---------- */
     .app-header {
-      position: relative;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 30;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      background: rgba(252, 246, 237, 0.45);
+      border-bottom: 1px solid rgba(200, 150, 130, 0.25);
+      padding: 12px 20px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 20px 0 10px;
-      min-height: 70px;
+      transition: opacity 0.4s;
+      opacity: 0;
+      pointer-events: none;
+    }
+    .app-header.visible {
+      opacity: 1;
+      pointer-events: auto;
     }
 
     .brand-title {
       font-family: 'Noto Serif SC', 'Songti SC', serif;
       font-weight: 900;
-      font-size: 3.4rem;
-      color: #b15e4a;
-      letter-spacing: 2px;
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      white-space: nowrap;
-      z-index: 30;
-      margin: 0;
-      text-shadow: 0 4px 12px rgba(160, 90, 70, 0.1);
-      transition: opacity 0.5s ease;
-      opacity: 0;
-      pointer-events: none;
-    }
-    .brand-title.fade-in {
-      opacity: 1;
-    }
-    .brand-title.moved {
-      position: static;
-      transform: none;
       font-size: 2rem;
-      opacity: 1;
-      pointer-events: auto;
-      z-index: 10;
+      color: #b15e4a;
+      letter-spacing: 1px;
       text-shadow: none;
-      transition: all 0.8s cubic-bezier(0.34, 1.3, 0.64, 1);
+      margin: 0;
     }
 
     .menu-toggle {
@@ -136,50 +157,21 @@
       font-size: 1.8rem;
       color: #6b4e40;
       cursor: pointer;
-      padding: 8px 12px;
+      padding: 6px 12px;
       border-radius: 30px;
-      transition: background 0.2s, opacity 0.4s;
-      opacity: 0;
-      pointer-events: none;
-      backdrop-filter: blur(4px);
+      transition: background 0.2s;
       line-height: 1;
-    }
-    .menu-toggle.visible {
-      opacity: 1;
-      pointer-events: auto;
     }
     .menu-toggle:hover {
       background: rgba(200, 150, 130, 0.1);
     }
 
-    .content-pane {
-      opacity: 0;
-      transition: opacity 0.5s ease;
-      margin-top: 20px;
-      padding: 10px 0 40px;
-    }
-    .content-pane.revealed {
-      opacity: 1;
-    }
-
-    .page-section {
-      display: none;
-      animation: fadeContent 0.5s ease;
-    }
-    .page-section.active {
-      display: block;
-    }
-
-    @keyframes fadeContent {
-      0% { opacity: 0.3; }
-      100% { opacity: 1; }
-    }
-
+    /* 每个slide内的标题 */
     .section-title {
       font-weight: 900;
-      font-size: 2.4rem;
+      font-size: 2.2rem;
       color: #4f3a30;
-      margin-bottom: 24px;
+      margin: 20px 0 20px;
       letter-spacing: -0.01em;
       border-left: 8px solid #b15e4a;
       padding-left: 22px;
@@ -215,59 +207,141 @@
       color: #b15e4a;
     }
 
-    /* ---------- 学校几何图形区域 ---------- */
+    /* 学校建筑图形 */
     .school-section {
-      margin-top: 32px;
+      margin: 20px 0 20px;
       display: flex;
       flex-direction: column;
       align-items: center;
       text-align: center;
     }
-    .geometry-group {
+    .building-group {
       display: flex;
-      justify-content: center;
       align-items: flex-end;
-      gap: 20px;
-      margin-bottom: 24px;
-    }
-    /* 简约几何：菱形 + 矩形 + 圆形 组合成类似校园建筑/书卷的感觉 */
-    .geo-shape {
-      background: rgba(200, 150, 130, 0.15);
+      justify-content: center;
+      gap: 6px;
+      margin-bottom: 20px;
+      padding: 16px 8px;
+      background: rgba(250, 240, 230, 0.3);
       backdrop-filter: blur(4px);
       -webkit-backdrop-filter: blur(4px);
+      border-radius: 40px;
+      border: 0.5px solid rgba(200, 150, 130, 0.2);
+    }
+    .house-body {
+      width: 90px;
+      height: 75px;
+      background: rgba(200, 150, 130, 0.2);
+      backdrop-filter: blur(4px);
       border: 1.5px solid #b15e4a;
+      border-radius: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
     }
-    .shape-rhombus {
-      width: 60px;
-      height: 60px;
-      transform: rotate(45deg);
-      border-radius: 8px;
-    }
-    .shape-rect {
-      width: 80px;
-      height: 50px;
-      border-radius: 12px;
-    }
-    .shape-circle {
-      width: 55px;
-      height: 55px;
-      border-radius: 50%;
-    }
-    .shape-triangle {
-      width: 0;
-      height: 0;
-      border-left: 35px solid transparent;
-      border-right: 35px solid transparent;
-      border-bottom: 60px solid rgba(177, 94, 74, 0.25);
+    .roof {
+      width: 110px;
+      height: 18px;
+      background: rgba(177, 94, 74, 0.3);
       backdrop-filter: blur(4px);
-      -webkit-backdrop-filter: blur(4px);
-      background: transparent;
-      border-bottom-color: #b15e4a;
-      opacity: 0.7;
+      border: 1.5px solid #b15e4a;
+      border-radius: 30px 30px 12px 12px;
+      position: relative;
+      top: -6px;
+      left: -10px;
     }
-
+    .window-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 4px;
+    }
+    .window {
+      width: 22px;
+      height: 28px;
+      background: rgba(250, 245, 235, 0.6);
+      backdrop-filter: blur(2px);
+      border: 1.5px solid #b15e4a;
+      border-radius: 12px;
+      position: relative;
+    }
+    .window::after {
+      content: "";
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      border-right: 1.5px solid #b15e4a;
+      border-bottom: 1.5px solid #b15e4a;
+      border-radius: 2px;
+      opacity: 0.6;
+      top: 6px;
+      left: 5px;
+    }
+    .clock-wrapper {
+      margin-left: 6px;
+    }
+    .clock {
+      width: 40px;
+      height: 40px;
+      background: rgba(250, 245, 235, 0.7);
+      backdrop-filter: blur(4px);
+      border: 1.8px solid #b15e4a;
+      border-radius: 50%;
+      position: relative;
+    }
+    .clock-hand {
+      position: absolute;
+      background: #b15e4a;
+      border-radius: 20px;
+    }
+    .hour-hand {
+      width: 4px;
+      height: 14px;
+      bottom: 50%;
+      left: calc(50% - 2px);
+      transform: rotate(30deg);
+      transform-origin: bottom center;
+    }
+    .minute-hand {
+      width: 3px;
+      height: 18px;
+      bottom: 50%;
+      left: calc(50% - 1.5px);
+      transform: rotate(-20deg);
+      transform-origin: bottom center;
+    }
+    .clock-center {
+      width: 6px;
+      height: 6px;
+      background: #b15e4a;
+      border-radius: 50%;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+    .flagpole-wrapper {
+      margin-left: 8px;
+    }
+    .flagpole {
+      width: 6px;
+      height: 70px;
+      background: rgba(177, 94, 74, 0.4);
+      backdrop-filter: blur(2px);
+      border: 1px solid #b15e4a;
+      border-radius: 20px;
+      margin-bottom: 2px;
+    }
+    .flag {
+      width: 34px;
+      height: 22px;
+      background: rgba(177, 94, 74, 0.25);
+      backdrop-filter: blur(4px);
+      border: 1.5px solid #b15e4a;
+      border-radius: 12px;
+      transform: translateX(-6px);
+    }
     .school-text {
-      font-family: 'Noto Serif SC', 'Songti SC', serif;
       font-weight: 700;
       font-size: 1.3rem;
       color: #5e4b3f;
@@ -312,7 +386,6 @@
       margin-bottom: 20px;
     }
     .nav-menu a {
-      font-family: 'Noto Serif SC', serif;
       font-weight: 700;
       font-size: 1.6rem;
       color: #4f3a30;
@@ -320,19 +393,13 @@
       display: block;
       padding: 8px 0;
       border-bottom: 1px solid rgba(180, 130, 110, 0.2);
-      transition: color 0.2s;
-    }
-    .nav-menu a:hover {
-      color: #b15e4a;
     }
     .nav-menu .close-menu {
       text-align: right;
       font-size: 1.8rem;
       color: #7a5e50;
       cursor: pointer;
-      margin-bottom: 10px;
     }
-
     .menu-overlay {
       position: fixed;
       top: 0; left: 0; width: 100%; height: 100%;
@@ -349,15 +416,8 @@
     }
 
     @media (max-width: 600px) {
-      .brand-title {
-        font-size: 2.5rem;
-      }
-      .brand-title.moved {
-        font-size: 1.8rem;
-      }
-      .school-name {
-        font-size: 1.8rem;
-      }
+      .section-title { font-size: 1.9rem; }
+      .school-name { font-size: 1.8rem; }
     }
   </style>
 </head>
@@ -367,7 +427,7 @@
 <div id="loaderOverlay">
   <div class="progress-container">
     <div class="progress-bar-bg">
-      <div id="progressFill" class="progress-fill" style="width: 0%;"></div>
+      <div id="progressFill" class="progress-fill"></div>
     </div>
     <div id="progressPercent" class="progress-text">0%</div>
   </div>
@@ -375,75 +435,68 @@
 
 <!-- 主应用 -->
 <div id="app">
-  <div class="app-wrapper">
-    
-    <header class="app-header">
-      <h1 id="brandTitle" class="brand-title">白给Turbo</h1>
-      <button id="menuToggleBtn" class="menu-toggle" aria-label="菜单">
-        <i class="fas fa-bars"></i>
-      </button>
-    </header>
+  <!-- 固定导航栏 (透明毛玻璃 + 边界) -->
+  <header id="mainHeader" class="app-header">
+    <div class="brand-title">白给Turbo</div>
+    <button id="menuToggleBtn" class="menu-toggle" aria-label="菜单">
+      <i class="fas fa-bars"></i>
+    </button>
+  </header>
 
-    <div class="content-pane" id="contentPane">
-      <!-- 首页内容已更新，去掉卡片，添加学校几何图形 -->
-      <section id="homeSection" class="page-section active">
+  <!-- 滑动容器 -->
+  <div id="sliderContainer" class="slider-container">
+    <!-- 首页 slide 0 -->
+    <section class="slide" data-index="0">
+      <div class="slide-content">
         <h2 class="section-title">为什么要做这网站</h2>
-        <div style="display: flex; flex-direction: column; gap: 12px;">
-          <p style="font-size: 1.1rem; line-height: 1.7;">
-            突然心血来潮，想要做一个展示图片的网站，可是我这只是部署在github上，我也没有细细研究，也租不起服务器，所以只是随便用ai做了这个网站。当然，后续可能确实会展示一些图片，不过那就是后续了......哦，我这糟糕的语言组织能力......
-          </p>
-          
-          <!-- 时间区域 -->
-          <div class="time-group">
-            <div class="fixed-time">
-              <i class="fas fa-clock time-icon"></i> 
-              <span>固定时间：2026年4月15日 16:44:47</span>
-            </div>
-            <div class="elapsed-time" id="elapsedTimeDisplay">
-              <i class="fas fa-hourglass-half time-icon"></i>
-              计算中...
-            </div>
-            <div class="live-time" id="liveTimeDisplay">
-              <i class="fas fa-sync-alt time-icon"></i>
-              现在加载中...
-            </div>
-          </div>
-
-          <!-- 学校样式几何图形 + 就读信息 (替代原卡片区域) -->
-          <div class="school-section">
-            <div class="geometry-group">
-              <div class="geo-shape shape-rhombus"></div>
-              <div class="geo-shape shape-rect"></div>
-              <div class="shape-triangle"></div>
-              <div class="geo-shape shape-circle"></div>
-            </div>
-            <div class="school-text">现就读于</div>
-            <div class="school-name">西安职业技术学院</div>
-            <p style="margin-top: 16px; opacity: 0.6; font-size: 0.9rem;">
-              <i class="fas fa-graduation-cap" style="margin-right: 6px;"></i>知行合一 · 厚德强能
-            </p>
-          </div>
+        <p style="font-size: 1.1rem; line-height: 1.7;">
+          突然心血来潮，想要做一个展示图片的网站，可是我这只是部署在github上，我也没有细细研究，也租不起服务器，所以只是随便用ai做了这个网站。当然，后续可能确实会展示一些图片，不过那就是后续了......哦，我这糟糕的语言组织能力......
+        </p>
+        <div class="time-group">
+          <div class="fixed-time"><i class="fas fa-clock time-icon"></i> 固定时间：2026年4月15日 16:44:47</div>
+          <div class="elapsed-time" id="elapsedTimeDisplay"><i class="fas fa-hourglass-half time-icon"></i> 计算中...</div>
+          <div class="live-time" id="liveTimeDisplay"><i class="fas fa-sync-alt time-icon"></i> 现在加载中...</div>
         </div>
-      </section>
+        <div class="school-section">
+          <div class="building-group">
+            <div class="flagpole-wrapper"><div class="flagpole"></div><div class="flag"></div></div>
+            <div style="display:flex; flex-direction:column; align-items:center;">
+              <div class="roof"></div>
+              <div class="house-body">
+                <div class="window-row"><div class="window"></div><div class="window"></div></div>
+                <div style="width:30px; height:4px; background:#b15e4a; opacity:0.3; border-radius:4px; margin-top:6px;"></div>
+              </div>
+            </div>
+            <div class="clock-wrapper"><div class="clock"><div class="clock-hand hour-hand"></div><div class="clock-hand minute-hand"></div><div class="clock-center"></div></div></div>
+          </div>
+          <div class="school-text">现就读于</div>
+          <div class="school-name">西安职业技术学院</div>
+          <p style="margin-top:16px; opacity:0.6;"><i class="fas fa-graduation-cap"></i> 知行合一 · 厚德强能</p>
+        </div>
+      </div>
+    </section>
 
-      <!-- 作品集 -->
-      <section id="workSection" class="page-section">
+    <!-- 作品集 slide 1 -->
+    <section class="slide" data-index="1">
+      <div class="slide-content">
         <h2 class="section-title">· 作品集</h2>
         <p>这里是作品陈列区。后续将展示按地点、时间分类的摄影作品。</p>
-        <div style="margin-top: 30px; padding: 30px; background: rgba(230,210,190,0.2); border-radius: 40px; text-align: center; backdrop-filter: blur(4px);">
-          <i class="fas fa-images" style="font-size: 3rem; color: #b15e4a; opacity: 0.5;"></i>
-          <p style="margin-top: 16px;">影像即将上架 · 敬请期待</p>
+        <div style="margin-top:30px; padding:40px 20px; background:rgba(230,210,190,0.2); border-radius:40px; text-align:center; backdrop-filter:blur(4px);">
+          <i class="fas fa-images" style="font-size:3.5rem; color:#b15e4a; opacity:0.5;"></i>
+          <p style="margin-top:20px;">影像即将上架 · 敬请期待</p>
         </div>
-      </section>
+      </div>
+    </section>
 
-      <!-- 关于我们 -->
-      <section id="aboutSection" class="page-section">
+    <!-- 关于 slide 2 -->
+    <section class="slide" data-index="2">
+      <div class="slide-content">
         <h2 class="section-title">· 关于我们</h2>
         <p>“白给”是一种状态——不预设，不刻意。Turbo则代表速度与热忱。我们试图在低饱和的暖调中，捕捉那些转瞬即逝的温柔。</p>
         <p>所有字体选用宋体，标题加粗，传递阅读的稳定感。</p>
-        <p style="margin-top: 30px;"><i class="fas fa-feather-alt" style="color: #b15e4a;"></i> 纸映团队 · 持续建造中</p>
-      </section>
-    </div>
+        <p style="margin-top:30px;"><i class="fas fa-feather-alt" style="color:#b15e4a;"></i> 纸映团队 · 持续建造中</p>
+      </div>
+    </section>
   </div>
 </div>
 
@@ -452,10 +505,9 @@
 <nav id="navMenu" class="nav-menu">
   <div class="close-menu" id="closeMenuBtn"><i class="fas fa-times"></i></div>
   <ul>
-    <li><a href="#" data-page="home">首页</a></li>
-    <li><a href="#" data-page="work">作品</a></li>
-    <li><a href="#" data-page="about">关于</a></li>
-    <li style="margin-top: 30px;"><a href="#" data-page="home" style="font-size: 1.2rem; opacity: 0.7;">待开发…</a></li>
+    <li><a href="#" data-slide="0">首页</a></li>
+    <li><a href="#" data-slide="1">作品</a></li>
+    <li><a href="#" data-slide="2">关于</a></li>
   </ul>
 </nav>
 
@@ -463,164 +515,140 @@
   (function() {
     "use strict";
 
+    // ---------- 时间显示 ----------
     const FIXED_DATE = new Date(2026, 3, 15, 16, 44, 47);
-
     function updateTimeDisplays() {
       const now = new Date();
-      
-      const year = now.getFullYear();
-      const month = String(now.getMonth() + 1).padStart(2, '0');
-      const day = String(now.getDate()).padStart(2, '0');
-      const hours = String(now.getHours()).padStart(2, '0');
-      const minutes = String(now.getMinutes()).padStart(2, '0');
-      const seconds = String(now.getSeconds()).padStart(2, '0');
-      const liveStr = `${year}年${month}月${day}日 ${hours}:${minutes}:${seconds}`;
-      
+      const liveStr = `${now.getFullYear()}年${String(now.getMonth()+1).padStart(2,'0')}月${String(now.getDate()).padStart(2,'0')}日 ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}`;
       const liveEl = document.getElementById('liveTimeDisplay');
-      if (liveEl) {
-        liveEl.innerHTML = `<i class="fas fa-sync-alt time-icon"></i> 现在是 ${liveStr}`;
-      }
-      
+      if(liveEl) liveEl.innerHTML = `<i class="fas fa-sync-alt time-icon"></i> 现在是 ${liveStr}`;
       const elapsedMs = now - FIXED_DATE;
       const elapsedEl = document.getElementById('elapsedTimeDisplay');
-      if (elapsedEl) {
-        if (elapsedMs < 0) {
-          elapsedEl.innerHTML = `<i class="fas fa-hourglass-start time-icon"></i> 距离固定时间还有 ${formatDuration(-elapsedMs)}`;
-        } else {
-          elapsedEl.innerHTML = `<i class="fas fa-hourglass-half time-icon"></i> 已经过去 ${formatDuration(elapsedMs)}`;
-        }
+      if(elapsedEl) {
+        const absMs = Math.abs(elapsedMs);
+        const totalSeconds = Math.floor(absMs / 1000);
+        const days = Math.floor(totalSeconds / 86400);
+        const hours = Math.floor((totalSeconds % 86400) / 3600);
+        const minutes = Math.floor((totalSeconds % 3600) / 60);
+        const seconds = totalSeconds % 60;
+        const parts = [];
+        if(days) parts.push(`${days}天`);
+        if(hours||days) parts.push(`${hours}小时`);
+        if(minutes||hours||days) parts.push(`${minutes}分`);
+        parts.push(`${seconds}秒`);
+        const durationStr = parts.join('');
+        if(elapsedMs < 0) elapsedEl.innerHTML = `<i class="fas fa-hourglass-start time-icon"></i> 距离固定时间还有 ${durationStr}`;
+        else elapsedEl.innerHTML = `<i class="fas fa-hourglass-half time-icon"></i> 已经过去 ${durationStr}`;
       }
     }
-
-    function formatDuration(ms) {
-      if (ms < 0) ms = -ms;
-      const totalSeconds = Math.floor(ms / 1000);
-      const days = Math.floor(totalSeconds / 86400);
-      const hours = Math.floor((totalSeconds % 86400) / 3600);
-      const minutes = Math.floor((totalSeconds % 3600) / 60);
-      const seconds = totalSeconds % 60;
-      
-      const parts = [];
-      if (days > 0) parts.push(`${days}天`);
-      if (hours > 0 || days > 0) parts.push(`${hours}小时`);
-      if (minutes > 0 || hours > 0 || days > 0) parts.push(`${minutes}分`);
-      parts.push(`${seconds}秒`);
-      return parts.join('');
-    }
-
     updateTimeDisplays();
     setInterval(updateTimeDisplays, 1000);
 
-    // 加载动画
+    // ---------- 加载进度 & 动画 ----------
     const loaderOverlay = document.getElementById('loaderOverlay');
     const progressFill = document.getElementById('progressFill');
     const progressPercent = document.getElementById('progressPercent');
     const app = document.getElementById('app');
-    const brandTitle = document.getElementById('brandTitle');
-    const menuToggle = document.getElementById('menuToggleBtn');
-    const contentPane = document.getElementById('contentPane');
+    const mainHeader = document.getElementById('mainHeader');
     
-    const navMenu = document.getElementById('navMenu');
-    const menuOverlay = document.getElementById('menuOverlay');
-    const closeMenuBtn = document.getElementById('closeMenuBtn');
-    
-    const sections = {
-      home: document.getElementById('homeSection'),
-      work: document.getElementById('workSection'),
-      about: document.getElementById('aboutSection')
-    };
-
-    let progress = 0;
-    let loadCompleted = false;
-    
-    function updateProgress(value) {
-      progressFill.style.width = value + '%';
-      progressPercent.textContent = value + '%';
-    }
-
-    function startBrandAnimation() {
+    let progress = 0, loadCompleted = false;
+    function updateProgress(v) { progressFill.style.width = v+'%'; progressPercent.textContent = v+'%'; }
+    function finishLoading() {
       loaderOverlay.classList.add('hidden');
       app.classList.add('visible');
-      
-      requestAnimationFrame(() => {
-        brandTitle.classList.add('fade-in');
-        
-        setTimeout(() => {
-          brandTitle.classList.add('moved');
-          
-          setTimeout(() => {
-            menuToggle.classList.add('visible');
-            contentPane.classList.add('revealed');
-          }, 800);
-          
-        }, 600);
-      });
+      setTimeout(() => { mainHeader.classList.add('visible'); }, 300);
     }
 
-    let progressInterval = setInterval(() => {
-      if (progress < 90) {
-        progress += 7;
-        if (progress > 90) progress = 90;
-        updateProgress(progress);
-      } else if (progress >= 90 && progress < 100) {
-        if (loadCompleted) {
-          progress = 100;
-          updateProgress(progress);
-          clearInterval(progressInterval);
-          startBrandAnimation();
-        }
-      }
+    let interval = setInterval(() => {
+      if(progress < 90) { progress = Math.min(progress+7, 90); updateProgress(progress); }
+      else if(progress>=90 && loadCompleted) { progress=100; updateProgress(progress); clearInterval(interval); finishLoading(); }
     }, 30);
 
-    window.addEventListener('load', function() {
+    window.addEventListener('load', ()=>{
       loadCompleted = true;
-      if (progress < 100) {
-        progress = 100;
-        updateProgress(progress);
-        clearInterval(progressInterval);
-        startBrandAnimation();
+      if(progress<100) { progress=100; updateProgress(progress); clearInterval(interval); finishLoading(); }
+    });
+    setTimeout(()=>{ if(!loadCompleted) { loadCompleted=true; progress=100; updateProgress(progress); clearInterval(interval); finishLoading(); } }, 5000);
+
+    // ---------- 全屏滑动 ----------
+    const slider = document.getElementById('sliderContainer');
+    const slides = document.querySelectorAll('.slide');
+    const totalSlides = slides.length;
+    let currentIndex = 0;
+    let isAnimating = false;
+    let touchStartY = 0;
+
+    function goToSlide(index) {
+      if(index < 0) index = 0;
+      if(index >= totalSlides) index = totalSlides - 1;
+      if(index === currentIndex) return;
+      currentIndex = index;
+      slider.style.transform = `translateY(-${currentIndex * 100}vh)`;
+    }
+
+    // 边界阻力效果
+    function attemptSlide(direction) {
+      if(isAnimating) return;
+      let target = currentIndex + direction;
+      if(target < 0 || target >= totalSlides) {
+        isAnimating = true;
+        const offset = direction * 8;
+        slider.style.transition = 'transform 0.25s cubic-bezier(0.2, 0.9, 0.4, 1)';
+        slider.style.transform = `translateY(calc(-${currentIndex * 100}vh + ${offset}px))`;
+        setTimeout(() => {
+          slider.style.transform = `translateY(-${currentIndex * 100}vh)`;
+          setTimeout(() => { slider.style.transition = ''; isAnimating = false; }, 200);
+        }, 150);
+        return;
       }
+      isAnimating = true;
+      slider.style.transition = 'transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+      currentIndex = target;
+      slider.style.transform = `translateY(-${currentIndex * 100}vh)`;
+      setTimeout(() => { isAnimating = false; }, 600);
+    }
+
+    // 滚轮事件
+    window.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      const delta = e.deltaY > 0 ? 1 : -1;
+      attemptSlide(delta);
+    }, { passive: false });
+
+    // 触摸事件
+    window.addEventListener('touchstart', (e) => { touchStartY = e.touches[0].clientY; }, { passive: true });
+    window.addEventListener('touchmove', (e) => { e.preventDefault(); }, { passive: false });
+    window.addEventListener('touchend', (e) => {
+      const endY = e.changedTouches[0].clientY;
+      const diff = touchStartY - endY;
+      if(Math.abs(diff) > 30) attemptSlide(diff > 0 ? 1 : -1);
     });
 
-    setTimeout(() => {
-      if (!loadCompleted) {
-        loadCompleted = true;
-        progress = 100;
-        updateProgress(progress);
-        clearInterval(progressInterval);
-        startBrandAnimation();
-      }
-    }, 5000);
-
-    // 菜单
-    function openMenu() {
-      navMenu.classList.add('open');
-      menuOverlay.classList.add('active');
-      document.body.style.overflow = 'hidden';
-    }
-    function closeMenu() {
-      navMenu.classList.remove('open');
-      menuOverlay.classList.remove('active');
-      document.body.style.overflow = '';
-    }
-
-    menuToggle.addEventListener('click', openMenu);
-    closeMenuBtn.addEventListener('click', closeMenu);
-    menuOverlay.addEventListener('click', closeMenu);
-
-    const menuLinks = document.querySelectorAll('.nav-menu a[data-page]');
-    menuLinks.forEach(link => {
+    // 菜单切换
+    const navMenu = document.getElementById('navMenu');
+    const overlay = document.getElementById('menuOverlay');
+    function openMenu() { navMenu.classList.add('open'); overlay.classList.add('active'); document.body.style.overflow='hidden'; }
+    function closeMenu() { navMenu.classList.remove('open'); overlay.classList.remove('active'); document.body.style.overflow=''; }
+    document.getElementById('menuToggleBtn').addEventListener('click', openMenu);
+    document.getElementById('closeMenuBtn').addEventListener('click', closeMenu);
+    overlay.addEventListener('click', closeMenu);
+    document.querySelectorAll('.nav-menu a[data-slide]').forEach(link => {
       link.addEventListener('click', (e) => {
         e.preventDefault();
-        const page = link.dataset.page;
-        Object.keys(sections).forEach(key => {
-          if (sections[key]) sections[key].classList.remove('active');
-        });
-        if (sections[page]) sections[page].classList.add('active');
+        const idx = parseInt(link.dataset.slide);
+        if(!isNaN(idx) && idx !== currentIndex) {
+          isAnimating = true;
+          slider.style.transition = 'transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+          currentIndex = idx;
+          slider.style.transform = `translateY(-${currentIndex * 100}vh)`;
+          setTimeout(() => isAnimating = false, 600);
+        }
         closeMenu();
       });
     });
 
+    // 初始置位
+    slider.style.transform = 'translateY(0)';
   })();
 </script>
 </body>
