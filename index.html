@@ -10,7 +10,18 @@
   <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <style>
-    /* ---------- 全局 · 低饱和暖黄 · 宋体 ---------- */
+    /* ---------- 全局 · 新配色 #a61b29 / #f7ece7 ---------- */
+    :root {
+      --bg-primary: #f7ece7;        /* 柔白背景 */
+      --text-primary: #a61b29;      /* 深红主文字/强调 */
+      --text-soft: #5c3e3a;         /* 辅助文字 (深红褐) */
+      --accent-light: #c25a5a;      /* 稍亮的红，用于hover等 */
+      --glass-bg: rgba(247, 236, 231, 0.45);
+      --glass-border: rgba(166, 27, 41, 0.18);
+      --shadow-sm: 0 10px 24px -6px rgba(166, 27, 41, 0.06);
+      --progress-bg: rgba(166, 27, 41, 0.12);
+    }
+
     * {
       margin: 0;
       padding: 0;
@@ -19,8 +30,8 @@
 
     body {
       font-family: 'Noto Serif SC', 'Songti SC', 'SimSun', '宋体', serif;
-      background-color: #fcf6ed;
-      color: #3e2e26;
+      background-color: var(--bg-primary);
+      color: var(--text-soft);
       line-height: 1.5;
       height: 100vh;
       overflow: hidden;
@@ -46,7 +57,7 @@
     #loaderOverlay {
       position: fixed;
       top: 0; left: 0; width: 100%; height: 100%;
-      background-color: #fcf6ed;
+      background-color: var(--bg-primary);
       z-index: 1000;
       display: flex;
       flex-direction: column;
@@ -67,25 +78,25 @@
       max-width: 70vw;
     }
     .progress-bar-bg {
-      background: rgba(200, 150, 130, 0.15);
+      background: var(--progress-bg);
       height: 6px;
       border-radius: 20px;
       overflow: hidden;
-      box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+      box-shadow: inset 0 1px 3px rgba(0,0,0,0.03);
     }
     .progress-fill {
       width: 0%;
       height: 100%;
-      background: #b15e4a;
+      background: #a61b29;
       border-radius: 20px;
       transition: width 0.08s linear;
-      box-shadow: 0 0 6px rgba(177, 94, 74, 0.3);
+      box-shadow: 0 0 6px rgba(166, 27, 41, 0.25);
     }
     .progress-text {
       margin-top: 12px;
       font-size: 0.9rem;
       font-weight: 500;
-      color: #8b6f60;
+      color: var(--text-soft);
       text-align: center;
       letter-spacing: 1px;
     }
@@ -131,7 +142,7 @@
       padding-top: 80px;
     }
 
-    /* 导航栏 */
+    /* 导航栏 (毛玻璃) */
     .app-header {
       position: fixed;
       top: 0;
@@ -140,8 +151,8 @@
       z-index: 30;
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
-      background: rgba(252, 246, 237, 0.45);
-      border-bottom: 1px solid rgba(200, 150, 130, 0.25);
+      background: var(--glass-bg);
+      border-bottom: 1px solid var(--glass-border);
       padding: 12px 20px;
       display: flex;
       align-items: center;
@@ -158,7 +169,7 @@
     .brand-title {
       font-weight: 900;
       font-size: 2rem;
-      color: #b15e4a;
+      color: #a61b29;
       letter-spacing: 1px;
       margin: 0;
     }
@@ -167,98 +178,157 @@
       background: transparent;
       border: none;
       font-size: 1.8rem;
-      color: #6b4e40;
+      color: var(--text-soft);
       cursor: pointer;
       padding: 6px 12px;
       border-radius: 30px;
       transition: background 0.2s;
       line-height: 1;
     }
+    .menu-toggle:hover {
+      background: rgba(166, 27, 41, 0.08);
+    }
 
     .section-title {
       font-weight: 900;
       font-size: 2.2rem;
-      color: #4f3a30;
+      color: #a61b29;
       margin: 20px 0 20px;
       letter-spacing: -0.01em;
-      border-left: 8px solid #b15e4a;
+      border-left: 8px solid #a61b29;
       padding-left: 22px;
     }
 
-    p { color: #5e4b3f; margin-bottom: 1rem; }
+    p { color: var(--text-soft); margin-bottom: 1rem; }
 
-    /* 时间组 */
+    /* 时间组 (毛玻璃) */
     .time-group {
       margin: 16px 0 24px;
       padding: 16px 18px;
-      background: rgba(250, 240, 230, 0.4);
+      background: var(--glass-bg);
       backdrop-filter: blur(8px);
       -webkit-backdrop-filter: blur(8px);
       border-radius: 24px;
-      border: 0.5px solid rgba(200, 150, 130, 0.2);
+      border: 0.5px solid var(--glass-border);
     }
-    .fixed-time, .live-time { font-size: 1rem; color: #6b4e40; }
-    .elapsed-time { font-size: 1.2rem; font-weight: 600; color: #b15e4a; margin: 8px 0; }
-    .time-icon { margin-right: 6px; color: #b15e4a; }
+    .fixed-time, .live-time { font-size: 1rem; color: var(--text-soft); }
+    .elapsed-time { 
+      font-size: 1.2rem; 
+      font-weight: 600; 
+      color: #a61b29;
+      margin: 8px 0; 
+    }
+    .time-icon { margin-right: 6px; color: #a61b29; }
 
-    /* 学校图形 */
+    /* 学校图形 (红白配色) */
     .school-section { margin: 20px 0; display: flex; flex-direction: column; align-items: center; }
     .building-group {
       display: flex; align-items: flex-end; justify-content: center; gap: 6px;
       margin-bottom: 20px; padding: 16px 8px;
-      background: rgba(250, 240, 230, 0.3); backdrop-filter: blur(4px);
-      border-radius: 40px; border: 0.5px solid rgba(200, 150, 130, 0.2);
+      background: rgba(247, 236, 231, 0.6);
+      backdrop-filter: blur(4px);
+      border-radius: 40px; 
+      border: 0.5px solid var(--glass-border);
     }
     .house-body {
-      width: 90px; height: 75px; background: rgba(200, 150, 130, 0.2);
-      backdrop-filter: blur(4px); border: 1.5px solid #b15e4a; border-radius: 20px;
+      width: 90px; height: 75px; 
+      background: rgba(166, 27, 41, 0.06);
+      backdrop-filter: blur(4px); 
+      border: 1.5px solid #a61b29;
+      border-radius: 20px;
       display: flex; flex-direction: column; align-items: center; justify-content: center;
     }
     .roof {
-      width: 110px; height: 18px; background: rgba(177, 94, 74, 0.3);
-      backdrop-filter: blur(4px); border: 1.5px solid #b15e4a;
-      border-radius: 30px 30px 12px 12px; position: relative; top: -6px; left: -10px;
+      width: 110px; height: 18px; 
+      background: rgba(166, 27, 41, 0.18);
+      backdrop-filter: blur(4px); 
+      border: 1.5px solid #a61b29;
+      border-radius: 30px 30px 12px 12px; 
+      position: relative; top: -6px; left: -10px;
     }
     .window-row { display: flex; gap: 10px; margin-top: 4px; }
     .window {
-      width: 22px; height: 28px; background: rgba(250, 245, 235, 0.6);
-      backdrop-filter: blur(2px); border: 1.5px solid #b15e4a; border-radius: 12px; position: relative;
+      width: 22px; height: 28px; 
+      background: rgba(255, 255, 255, 0.5);
+      backdrop-filter: blur(2px); 
+      border: 1.5px solid #a61b29; 
+      border-radius: 12px; position: relative;
     }
     .window::after {
       content: ""; position: absolute; width: 10px; height: 10px;
-      border-right: 1.5px solid #b15e4a; border-bottom: 1.5px solid #b15e4a;
+      border-right: 1.5px solid #a61b29; border-bottom: 1.5px solid #a61b29;
       border-radius: 2px; opacity: 0.6; top: 6px; left: 5px;
     }
-    .clock { width: 40px; height: 40px; background: rgba(250, 245, 235, 0.7); backdrop-filter: blur(4px); border: 1.8px solid #b15e4a; border-radius: 50%; position: relative; }
-    .clock-hand { position: absolute; background: #b15e4a; border-radius: 20px; }
+    .clock { 
+      width: 40px; height: 40px; 
+      background: rgba(247, 236, 231, 0.8); 
+      backdrop-filter: blur(4px); 
+      border: 1.8px solid #a61b29;
+      border-radius: 50%; position: relative; 
+    }
+    .clock-hand { position: absolute; background: #a61b29; border-radius: 20px; }
     .hour-hand { width: 4px; height: 14px; bottom: 50%; left: calc(50% - 2px); transform: rotate(30deg); transform-origin: bottom center; }
     .minute-hand { width: 3px; height: 18px; bottom: 50%; left: calc(50% - 1.5px); transform: rotate(-20deg); transform-origin: bottom center; }
-    .clock-center { width: 6px; height: 6px; background: #b15e4a; border-radius: 50%; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); }
+    .clock-center { width: 6px; height: 6px; background: #a61b29; border-radius: 50%; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); }
     .flagpole-wrapper { margin-left: 8px; }
-    .flagpole { width: 6px; height: 70px; background: rgba(177, 94, 74, 0.4); backdrop-filter: blur(2px); border: 1px solid #b15e4a; border-radius: 20px; margin-bottom: 2px; }
-    .flag { width: 34px; height: 22px; background: rgba(177, 94, 74, 0.25); backdrop-filter: blur(4px); border: 1.5px solid #b15e4a; border-radius: 12px; transform: translateX(-6px); }
-    .school-text { font-weight: 700; font-size: 1.3rem; color: #5e4b3f; margin-bottom: 6px; }
-    .school-name { font-weight: 900; font-size: 2.2rem; color: #b15e4a; letter-spacing: 2px; border-bottom: 2px dashed rgba(177, 94, 74, 0.3); padding-bottom: 8px; display: inline-block; }
+    .flagpole { 
+      width: 6px; height: 70px; 
+      background: rgba(166, 27, 41, 0.3); 
+      backdrop-filter: blur(2px); 
+      border: 1px solid #a61b29; 
+      border-radius: 20px; margin-bottom: 2px; 
+    }
+    .flag { 
+      width: 34px; height: 22px; 
+      background: rgba(166, 27, 41, 0.2); 
+      backdrop-filter: blur(4px); 
+      border: 1.5px solid #a61b29; 
+      border-radius: 12px; 
+      transform: translateX(-6px); 
+    }
+    .school-text { font-weight: 700; font-size: 1.3rem; color: var(--text-soft); margin-bottom: 6px; }
+    .school-name { 
+      font-weight: 900; font-size: 2.2rem; 
+      color: #a61b29;
+      letter-spacing: 2px; 
+      border-bottom: 2px dashed rgba(166, 27, 41, 0.35); 
+      padding-bottom: 8px; display: inline-block; 
+    }
 
     /* 导航菜单 */
     .nav-menu {
       position: fixed; top: 0; right: -280px; width: 260px; max-width: 75vw; height: 100%;
-      background: rgba(250, 240, 230, 0.85); backdrop-filter: blur(12px);
-      box-shadow: -8px 0 30px rgba(120, 80, 60, 0.08); z-index: 50;
-      padding: 28px 20px; transition: right 0.4s cubic-bezier(0.23, 1, 0.32, 1);
-      border-left: 1px solid rgba(200, 150, 130, 0.2); overflow-y: auto;
+      background: rgba(247, 236, 231, 0.9);
+      backdrop-filter: blur(12px);
+      box-shadow: -8px 0 30px rgba(166, 27, 41, 0.06);
+      z-index: 50;
+      padding: 28px 20px; 
+      transition: right 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+      border-left: 1px solid var(--glass-border);
+      overflow-y: auto;
     }
     .nav-menu.open { right: 0; }
     .nav-menu ul { list-style: none; margin-top: 40px; }
     .nav-menu li { margin-bottom: 20px; }
-    .nav-menu a { font-weight: 700; font-size: 1.6rem; color: #4f3a30; text-decoration: none; display: block; padding: 8px 0; border-bottom: 1px solid rgba(180, 130, 110, 0.2); }
-    .nav-menu .close-menu { text-align: right; font-size: 1.8rem; color: #7a5e50; cursor: pointer; }
+    .nav-menu a { 
+      font-weight: 700; font-size: 1.6rem; color: #a61b29; 
+      text-decoration: none; display: block; padding: 8px 0; 
+      border-bottom: 1px solid rgba(166, 27, 41, 0.15); 
+    }
+    .nav-menu a:hover { color: #5c3e3a; }
+    .nav-menu .close-menu { text-align: right; font-size: 1.8rem; color: var(--text-soft); cursor: pointer; }
     .menu-overlay {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0,0,0,0.1); backdrop-filter: blur(2px); z-index: 40;
+      background: rgba(0,0,0,0.06); backdrop-filter: blur(2px); z-index: 40;
       opacity: 0; visibility: hidden; transition: 0.3s;
     }
     .menu-overlay.active { opacity: 1; visibility: visible; }
+
+    /* 展示区占位卡片 */
+    .showcase-placeholder {
+      background: rgba(166, 27, 41, 0.04);
+      border: 0.5px solid var(--glass-border);
+    }
 
     @media (max-width: 600px) {
       .section-title { font-size: 1.9rem; }
@@ -309,7 +379,7 @@
               <div class="roof"></div>
               <div class="house-body">
                 <div class="window-row"><div class="window"></div><div class="window"></div></div>
-                <div style="width:30px; height:4px; background:#b15e4a; opacity:0.3; border-radius:4px; margin-top:6px;"></div>
+                <div style="width:30px; height:4px; background:#a61b29; opacity:0.3; border-radius:4px; margin-top:6px;"></div>
               </div>
             </div>
             <div class="clock-wrapper"><div class="clock"><div class="clock-hand hour-hand"></div><div class="clock-hand minute-hand"></div><div class="clock-center"></div></div></div>
@@ -324,9 +394,9 @@
       <div class="slide-content">
         <h2 class="section-title">展示区</h2>
         <p>将展示按地点、时间分类的图片。</p>
-        <div style="margin-top:30px; padding:40px 20px; background:rgba(230,210,190,0.2); border-radius:40px; text-align:center; backdrop-filter:blur(4px);">
-          <i class="fas fa-images" style="font-size:3.5rem; color:#b15e4a; opacity:0.5;"></i>
-          <p style="margin-top:20px;">影像即将上架 · 敬请期待</p>
+        <div style="margin-top:30px; padding:40px 20px; background:rgba(166,27,41,0.03); border-radius:40px; text-align:center; backdrop-filter:blur(4px); border:0.5px solid var(--glass-border);" class="showcase-placeholder">
+          <i class="fas fa-images" style="font-size:3.5rem; color:#a61b29; opacity:0.55;"></i>
+          <p style="margin-top:20px; color:var(--text-soft);">影像即将上架 · 敬请期待</p>
         </div>
       </div>
     </section>
@@ -336,7 +406,7 @@
         <h2 class="section-title">关于未来</h2>
         <p>还有几个月才开学，现在还没找到稳定赚钱的工作，要买电脑......</p>
         <p>所有字体选用宋体，标题加粗，传递阅读的稳定感。</p>
-        <p style="margin-top:30px;"><i class="fas fa-feather-alt" style="color:#b15e4a;"></i> 持续建造中</p>
+        <p style="margin-top:30px;"><i class="fas fa-feather-alt" style="color:#a61b29;"></i> 持续建造中</p>
       </div>
     </section>
   </div>
@@ -453,7 +523,6 @@
       setTimeout(() => { isAnimating = false; }, 600);
     }
 
-    // 触摸滑动
     window.addEventListener('touchstart', (e) => {
       if(isAnimating) return;
       touchStartY = e.touches[0].clientY;
@@ -514,15 +583,11 @@
 
     slider.style.transform = 'translateY(0)';
 
-    // ---------- 点击反馈 (中心对齐修正) ----------
+    // ---------- 点击反馈 (中心对齐) ----------
     const circle = document.getElementById('feedbackCircle');
-    let pressTimer = null;
-    let isLongPress = false;
-    let isPressed = false;
-    let startX = 0, startY = 0;
+    let pressTimer = null, isLongPress = false, isPressed = false, startX = 0, startY = 0;
 
     function setCirclePosition(x, y) {
-      // 使用 translate(-50%, -50%) 让圆心对准坐标
       circle.style.left = x + 'px';
       circle.style.top = y + 'px';
     }
@@ -559,22 +624,15 @@
 
     function handlePressStart(clientX, clientY) {
       startX = clientX; startY = clientY;
-      isPressed = true;
-      isLongPress = false;
+      isPressed = true; isLongPress = false;
       showCircle(clientX, clientY);
-      
-      pressTimer = setTimeout(() => {
-        isLongPress = true;
-      }, 180);
+      pressTimer = setTimeout(() => { isLongPress = true; }, 180);
     }
 
     function handlePressMove(clientX, clientY) {
       if (!isPressed) return;
       const moveDist = Math.hypot(clientX - startX, clientY - startY);
-      if (moveDist > 8) {
-        clearTimeout(pressTimer);
-        isLongPress = true;
-      }
+      if (moveDist > 8) { clearTimeout(pressTimer); isLongPress = true; }
       if (isLongPress) {
         setCirclePosition(clientX, clientY);
         circle.style.transition = 'none';
@@ -583,65 +641,23 @@
       }
     }
 
-    function handlePressEnd(clientX, clientY) {
+    function handlePressEnd() {
       if (!isPressed) return;
       clearTimeout(pressTimer);
       const wasLongPress = isLongPress;
-      isPressed = false;
-      isLongPress = false;
-
-      if (!wasLongPress) {
-        playClickAnimation(startX, startY);
-      } else {
-        hideCircle(true);
-      }
+      isPressed = false; isLongPress = false;
+      if (!wasLongPress) playClickAnimation(startX, startY);
+      else hideCircle(true);
     }
 
-    // 鼠标事件
-    window.addEventListener('mousedown', (e) => {
-      if (e.button !== 0) return;
-      handlePressStart(e.clientX, e.clientY);
-    });
-    window.addEventListener('mousemove', (e) => {
-      if (!isPressed) return;
-      e.preventDefault();
-      handlePressMove(e.clientX, e.clientY);
-    });
-    window.addEventListener('mouseup', (e) => {
-      if (e.button !== 0) return;
-      handlePressEnd(e.clientX, e.clientY);
-    });
-    window.addEventListener('mouseleave', () => {
-      if (isPressed) {
-        clearTimeout(pressTimer);
-        hideCircle(true);
-        isPressed = false;
-        isLongPress = false;
-      }
-    });
-
-    // 触摸事件
-    window.addEventListener('touchstart', (e) => {
-      const touch = e.touches[0];
-      handlePressStart(touch.clientX, touch.clientY);
-    }, { passive: true });
-    window.addEventListener('touchmove', (e) => {
-      if (!isPressed) return;
-      const touch = e.touches[0];
-      handlePressMove(touch.clientX, touch.clientY);
-    });
-    window.addEventListener('touchend', (e) => {
-      if (!isPressed) return;
-      handlePressEnd(0, 0);
-    });
-    window.addEventListener('touchcancel', () => {
-      if (isPressed) {
-        clearTimeout(pressTimer);
-        hideCircle(true);
-        isPressed = false;
-        isLongPress = false;
-      }
-    });
+    window.addEventListener('mousedown', (e) => { if (e.button === 0) handlePressStart(e.clientX, e.clientY); });
+    window.addEventListener('mousemove', (e) => { if (isPressed) { e.preventDefault(); handlePressMove(e.clientX, e.clientY); } });
+    window.addEventListener('mouseup', (e) => { if (e.button === 0) handlePressEnd(); });
+    window.addEventListener('mouseleave', () => { if (isPressed) { clearTimeout(pressTimer); hideCircle(true); isPressed = false; isLongPress = false; } });
+    window.addEventListener('touchstart', (e) => { const t = e.touches[0]; handlePressStart(t.clientX, t.clientY); }, { passive: true });
+    window.addEventListener('touchmove', (e) => { if (isPressed) { const t = e.touches[0]; handlePressMove(t.clientX, t.clientY); } });
+    window.addEventListener('touchend', () => { if (isPressed) handlePressEnd(); });
+    window.addEventListener('touchcancel', () => { if (isPressed) { clearTimeout(pressTimer); hideCircle(true); isPressed = false; isLongPress = false; } });
 
   })();
 </script>
